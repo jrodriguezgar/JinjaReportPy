@@ -1,0 +1,57 @@
+/* ===========================================
+   Text - Formato Default
+   =========================================== */
+
+.section-text {
+    margin-bottom: 20px;
+}
+
+.text-title {
+    font-size: 12pt;
+    font-weight: 600;
+    color: var(--text-color, #1e293b);
+    margin-bottom: 10px;
+}
+
+.text-content {
+    font-size: 10pt;
+    line-height: 1.7;
+    color: var(--text-color, #1e293b);
+}
+
+.text-content p {
+    margin-bottom: 12px;
+}
+
+.text-content strong {
+    font-weight: 600;
+}
+
+.text-content em {
+    font-style: italic;
+}
+
+.text-content a {
+    color: var(--primary-color, #2563eb);
+    text-decoration: none;
+}
+
+.text-content a:hover {
+    text-decoration: underline;
+}
+
+.text-content blockquote {
+    border-left: 3px solid var(--primary-color, #2563eb);
+    padding-left: 15px;
+    margin: 15px 0;
+    color: var(--text-muted, #64748b);
+    font-style: italic;
+}
+
+.text-content code {
+    background: var(--bg-light, #f8fafc);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Consolas', monospace;
+    font-size: 9pt;
+}

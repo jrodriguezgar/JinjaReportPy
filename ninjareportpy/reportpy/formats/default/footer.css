@@ -1,0 +1,33 @@
+/* ===========================================
+   Footer - Formato Default
+   =========================================== */
+
+.section-footer {
+    position: absolute;
+    bottom: 15mm;
+    left: 15mm;
+    right: 15mm;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+    font-size: 8pt;
+    color: var(--text-muted, #64748b);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-left {
+    text-align: left;
+}
+
+.footer-center {
+    text-align: center;
+    flex: 1;
+}
+
+.footer-right {
+    text-align: right;
+}

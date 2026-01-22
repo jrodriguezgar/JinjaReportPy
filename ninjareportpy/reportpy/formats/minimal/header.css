@@ -1,0 +1,33 @@
+/* ===========================================
+   Header - Formato Minimal
+   =========================================== */
+
+.section-header {
+    margin-bottom: 30px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-logo {
+    max-height: 40px;
+    opacity: 0.8;
+}
+
+.header-title {
+    font-size: 18pt;
+    font-weight: 300;
+    color: #2d3748;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+    font-size: 10pt;
+    color: #a0aec0;
+    margin: 3px 0 0 0;
+    font-weight: 400;
+}

@@ -1,0 +1,9 @@
+{% if title %}<h3 class="kpi-section-title">{{ title }}</h3>{% endif %}
+<div class="kpi-container">
+    {% for kpi in kpis %}
+    <div class="kpi-card">
+        <div class="kpi-value">{{ kpi.value }}</div>
+        <div class="kpi-label">{{ kpi.label }}</div>
+    </div>
+    {% endfor %}
+</div>

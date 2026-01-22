@@ -1,0 +1,34 @@
+/* ===========================================
+   Section - Formato Default
+   =========================================== */
+
+.section {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 14pt;
+    font-weight: 600;
+    color: var(--primary-color, #2563eb);
+    border-bottom: 2px solid var(--primary-color, #2563eb);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.section-body {
+    font-size: 10pt;
+    line-height: 1.6;
+}
+
+.section-body p {
+    margin-bottom: 10px;
+}
+
+.section-body ul, .section-body ol {
+    margin: 10px 0;
+    padding-left: 25px;
+}
+
+.section-body li {
+    margin-bottom: 5px;
+}

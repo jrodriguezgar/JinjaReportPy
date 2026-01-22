@@ -1,0 +1,17 @@
+<div class="header-content">
+    <div class="header-brand">
+        {% if logo %}
+        <img src="{{ logo }}" alt="Logo" class="header-logo">
+        {% endif %}
+        <div class="header-text">
+            {% if title %}<h1 class="header-title">{{ title }}</h1>{% endif %}
+            {% if subtitle %}<p class="header-subtitle">{{ subtitle }}</p>{% endif %}
+        </div>
+    </div>
+    {% if date or reference %}
+    <div class="header-meta">
+        {% if reference %}<div class="header-reference">Ref: {{ reference }}</div>{% endif %}
+        {% if date %}<div class="header-date">{{ date }}</div>{% endif %}
+    </div>
+    {% endif %}
+</div>
