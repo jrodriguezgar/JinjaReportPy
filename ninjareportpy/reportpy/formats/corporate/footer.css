@@ -1,0 +1,43 @@
+/* ===========================================
+   Footer - Formato Corporate
+   =========================================== */
+
+.section-footer {
+    position: absolute;
+    bottom: 10mm;
+    left: 15mm;
+    right: 15mm;
+    padding-top: 12px;
+    border-top: 2px solid #1e3a5f;
+    font-size: 8pt;
+    color: #4a5568;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-left, .footer-right {
+    flex: 1;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-center {
+    flex: 1;
+    text-align: center;
+}
+
+.confidential {
+    background: #1e3a5f;
+    color: white;
+    padding: 3px 12px;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 2px;
+}

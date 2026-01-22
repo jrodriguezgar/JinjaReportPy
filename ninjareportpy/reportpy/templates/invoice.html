@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block header_title %}INVOICE{% endblock %}
+{% block header_subtitle %}No. {{ invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">From</div>
+            <strong>{{ company.name }}</strong><br>
+            {{ company.address | default('') }}<br>
+            {{ company.city | default('') }} {{ company.postal_code | default('') }}<br>
+            Tax ID: {{ company.tax_id | default('') }}
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">Bill To</div>
+            <strong>{{ client.name }}</strong><br>
+            {{ client.address | default('') }}<br>
+            {{ client.city | default('') }} {{ client.postal_code | default('') }}<br>
+            Tax ID: {{ client.tax_id | default('') }}
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-6">
+        <p><strong>Issue Date:</strong> {{ issue_date | format_date }}</p>
+    </div>
+    <div class="col-6 text-right">
+        <p><strong>Due Date:</strong> {{ due_date | format_date }}</p>
+    </div>
+</div>
+
+<h3>Items</h3>
+<table class="table-bordered">
+    <thead>
+        <tr>
+            <th style="width: 50%">Description</th>
+            <th class="text-center" style="width: 10%">Qty</th>
+            <th class="text-right" style="width: 15%">Unit Price</th>
+            <th class="text-right" style="width: 10%">VAT</th>
+            <th class="text-right" style="width: 15%">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.description }}</td>
+            <td class="text-center">{{ item.quantity }}</td>
+            <td class="text-right">{{ item.unit_price | currency }}</td>
+            <td class="text-right">{{ item.vat_rate | default(21) }}%</td>
+            <td class="text-right">{{ item.total | currency }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="row">
+    <div class="col-6">
+        {% if notes %}
+        <div class="info-box">
+            <strong>Notes:</strong><br>
+            {{ notes | nl2br }}
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-6">
+        <table class="table-compact">
+            <tr>
+                <td class="text-right"><strong>Subtotal:</strong></td>
+                <td class="text-right" style="width: 100px">{{ subtotal | currency }}</td>
+            </tr>
+            {% for vat_line in vat_lines %}
+            <tr>
+                <td class="text-right">VAT {{ vat_line.rate }}%:</td>
+                <td class="text-right">{{ vat_line.amount | currency }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="border-top">
+                <td class="text-right"><strong>TOTAL:</strong></td>
+                <td class="text-right font-bold" style="font-size: 12pt">{{ total | currency }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+{% if payment_info %}
+<div class="card mt-4">
+    <div class="card-header">Payment Information</div>
+    <p><strong>Method:</strong> {{ payment_info.method | default('Bank Transfer') }}</p>
+    {% if payment_info.iban %}
+    <p><strong>IBAN:</strong> <span class="font-mono">{{ payment_info.iban }}</span></p>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block footer_left %}
+Invoice {{ invoice_number }} - Generated on {{ now().strftime('%Y-%m-%d') }}
+{% endblock %}

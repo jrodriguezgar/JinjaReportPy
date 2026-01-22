@@ -1,0 +1,28 @@
+{% if title %}<h3 class="table-title">{{ title }}</h3>{% endif %}
+<table class="data-table">
+    <thead>
+        <tr>
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% if footer_row %}
+    <tfoot>
+        <tr>
+            {% for cell in footer_row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+    </tfoot>
+    {% endif %}
+</table>

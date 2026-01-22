@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block header_title %}{{ title }}{% endblock %}
+{% block header_subtitle %}{{ subtitle | default('') }}{% endblock %}
+
+{% block content %}
+<h2>{{ section_title | default('Resumen') }}</h2>
+
+{% if description %}
+<p class="text-muted mb-4">{{ description }}</p>
+{% endif %}
+
+{% if kpis %}
+<div class="kpi-container mb-4">
+    {% for kpi in kpis %}
+    <div class="kpi-card">
+        <div class="kpi-value">{{ kpi.value }}</div>
+        <div class="kpi-label">{{ kpi.label }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if data %}
+<table class="table-striped">
+    <thead>
+        <tr>
+            {% for header in headers %}
+            <th>{{ header }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% if totals %}
+    <tfoot>
+        <tr>
+            {% for total in totals %}
+            <td>{{ total }}</td>
+            {% endfor %}
+        </tr>
+    </tfoot>
+    {% endif %}
+</table>
+{% endif %}
+
+{% if notes %}
+<div class="info-box mt-4">
+    <strong>Notas:</strong><br>
+    {{ notes | nl2br }}
+</div>
+{% endif %}
+
+{% endblock %}

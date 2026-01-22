@@ -1,0 +1,37 @@
+/* ===========================================
+   KPI - Formato Minimal
+   =========================================== */
+
+.section-kpi {
+    margin-bottom: 25px;
+}
+
+.kpi-section-title {
+    font-size: 10pt;
+    font-weight: 500;
+    color: #718096;
+    margin-bottom: 15px;
+}
+
+.kpi-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.kpi-card {
+    text-align: left;
+}
+
+.kpi-value {
+    font-size: 24pt;
+    font-weight: 300;
+    color: #2d3748;
+    line-height: 1.1;
+}
+
+.kpi-label {
+    font-size: 9pt;
+    color: #a0aec0;
+    margin-top: 3px;
+}

@@ -1,0 +1,17 @@
+/* ===========================================
+   Footer - Formato Minimal
+   =========================================== */
+
+.section-footer {
+    position: absolute;
+    bottom: 15mm;
+    left: 15mm;
+    right: 15mm;
+    font-size: 8pt;
+    color: #a0aec0;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+}

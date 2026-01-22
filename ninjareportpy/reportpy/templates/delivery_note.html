@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block header_title %}DELIVERY NOTE{% endblock %}
+{% block header_subtitle %}No. {{ delivery_number }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">Shipper</div>
+            <strong>{{ company.name }}</strong><br>
+            {{ company.address | default('') }}<br>
+            {{ company.city | default('') }} {{ company.postal_code | default('') }}<br>
+            Tax ID: {{ company.tax_id | default('') }}
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">Recipient</div>
+            <strong>{{ client.name }}</strong><br>
+            {{ client.address | default('') }}<br>
+            {{ client.city | default('') }} {{ client.postal_code | default('') }}<br>
+            Tax ID: {{ client.tax_id | default('') }}
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-6">
+        <p><strong>Delivery Date:</strong> {{ date | format_date }}</p>
+    </div>
+    <div class="col-6 text-right">
+        <p><strong>Delivery No.:</strong> {{ delivery_number }}</p>
+    </div>
+</div>
+
+{% if delivery_address %}
+<div class="card mb-4">
+    <div class="card-header">📍 Shipping Address</div>
+    <p>{{ delivery_address }}</p>
+</div>
+{% endif %}
+
+<h3>Items Delivered</h3>
+<table class="table-bordered">
+    <thead>
+        <tr>
+            <th style="width: 10%">Code</th>
+            <th style="width: 50%">Description</th>
+            <th class="text-center" style="width: 15%">Quantity</th>
+            <th class="text-center" style="width: 15%">Unit</th>
+            <th class="text-center" style="width: 10%">Received</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.code | default('-') }}</td>
+            <td>{{ item.description }}</td>
+            <td class="text-center">{{ item.quantity | default(1) }}</td>
+            <td class="text-center">{{ item.unit | default('pcs') }}</td>
+            <td class="text-center">☐</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if notes %}
+<div class="info-box mt-4">
+    <strong>Notes:</strong><br>
+    {{ notes | nl2br }}
+</div>
+{% endif %}
+
+<div class="contract-signature">
+    <div class="signature-block">
+        <p class="text-muted">Delivered by</p>
+        <div class="signature-line">
+            Name: _____________________<br>
+            ID: _____________________
+        </div>
+    </div>
+    <div class="signature-block">
+        <p class="text-muted">Received by</p>
+        <div class="signature-line">
+            Name: _____________________<br>
+            ID: _____________________
+        </div>
+    </div>
+</div>
+
+<p class="text-center text-muted mt-4" style="font-size: 8pt;">
+    This delivery note is not valid as an invoice. 
+    The corresponding invoice will be issued separately.
+</p>
+
+{% endblock %}

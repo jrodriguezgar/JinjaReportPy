@@ -1,0 +1,14 @@
+{% if title %}<h3 class="kpi-section-title">{{ title }}</h3>{% endif %}
+<div class="kpi-container">
+    {% for kpi in kpis %}
+    <div class="kpi-card">
+        <div class="kpi-value">{{ kpi.value }}</div>
+        <div class="kpi-label">{{ kpi.label }}</div>
+        {% if kpi.change %}
+        <div class="kpi-change {{ 'positive' if kpi.change is string and kpi.change.startswith('+') else 'negative' if kpi.change is string and kpi.change.startswith('-') else '' }}">
+            {{ kpi.change }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥷 NinjaReportPy - Demo Completo</title>
+    <style>
+
+/* Reset & Base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --primary-color: #2563eb;
+    --text-color: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --bg-light: #f8fafc;
+    --page-width: 210mm;
+    --page-height: 297mm;
+    --page-margin: 15mm;
+}
+
+html { font-size: 10pt; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: var(--text-color);
+    background: #fff;
+}
+
+/* Page Structure */
+.page {
+    width: var(--page-width);
+    min-height: var(--page-height);
+    padding: var(--page-margin);
+    margin: 0 auto 20px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    page-break-after: always;
+}
+.page:last-child { page-break-after: auto; }
+.page-content { min-height: calc(var(--page-height) - 2 * var(--page-margin) - 40mm); }
+
+/* Section */
+.section { margin-bottom: 20px; }
+
+/* Typography */
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-bottom: 0.5em; }
+h1 { font-size: 20pt; }
+h2 { font-size: 16pt; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.25em; }
+h3 { font-size: 13pt; }
+p { margin-bottom: 1em; }
+
+/* Print */
+@media print {
+    body { background: none; }
+    .page { width: 100%; min-height: auto; padding: 0; margin: 0; box-shadow: none; }
+    .no-print { display: none !important; }
+}
+@page { size: A4 portrait; margin: 15mm; }
+
+/* Utilities */
+.page-break { page-break-after: always; }
+.avoid-break { page-break-inside: avoid; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.mb-1 { margin-bottom: 5px; }
+.mb-2 { margin-bottom: 10px; }
+.mb-3 { margin-bottom: 15px; }
+.mb-4 { margin-bottom: 20px; }
+
+
+/* Page 1 CSS */
+/* Section: header */
+/* ===========================================
+   Header - Formato Corporate
+   =========================================== */
+
+.section-header {
+    padding-bottom: 20px;
+    border-bottom: 4px solid #1e3a5f;
+    margin-bottom: 30px;
+    background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
+    margin: -15mm -15mm 25px -15mm;
+    padding: 20mm 15mm 15px 15mm;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.header-logo {
+    max-height: 70px;
+    max-width: 180px;
+    object-fit: contain;
+}
+
+.header-text {
+    border-left: 3px solid #1e3a5f;
+    padding-left: 15px;
+}
+
+.header-title {
+    font-size: 24pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.header-subtitle {
+    font-size: 11pt;
+    color: #4a5568;
+    margin: 8px 0 0 0;
+    font-weight: 500;
+}
+
+.header-meta {
+    text-align: right;
+    font-size: 9pt;
+    color: #4a5568;
+}
+
+.header-reference {
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.header-date {
+    color: #718096;
+}
+
+
+/* Section: footer */
+/* ===========================================
+   Footer - Formato Corporate
+   =========================================== */
+
+.section-footer {
+    position: absolute;
+    bottom: 10mm;
+    left: 15mm;
+    right: 15mm;
+    padding-top: 12px;
+    border-top: 2px solid #1e3a5f;
+    font-size: 8pt;
+    color: #4a5568;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-left, .footer-right {
+    flex: 1;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-center {
+    flex: 1;
+    text-align: center;
+}
+
+.confidential {
+    background: #1e3a5f;
+    color: white;
+    padding: 3px 12px;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 2px;
+}
+
+
+/* Section: intro_simple */
+/* ===========================================
+   Text - Formato Corporate
+   =========================================== */
+
+.section-text {
+    margin-bottom: 20px;
+}
+
+.text-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.text-content {
+    font-size: 10pt;
+    line-height: 1.7;
+    color: #2d3748;
+    text-align: justify;
+}
+
+.text-content p {
+    margin-bottom: 12px;
+}
+
+
+/* Section: kpis_ejemplo */
+/* ===========================================
+   KPI - Formato Corporate
+   =========================================== */
+
+.section-kpi {
+    margin-bottom: 25px;
+}
+
+.kpi-section-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.kpi-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.kpi-card {
+    flex: 1;
+    min-width: 140px;
+    background: #1e3a5f;
+    color: white;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+}
+
+.kpi-value {
+    font-size: 28pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+
+.kpi-label {
+    font-size: 9pt;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
+
+.kpi-change {
+    font-size: 10pt;
+    font-weight: 700;
+    margin-top: 10px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.kpi-change.positive {
+    background: #48bb78;
+}
+
+.kpi-change.negative {
+    background: #f56565;
+}
+
+
+/* Section: tabla_ejemplo */
+/* ===========================================
+   Table - Formato Corporate
+   =========================================== */
+
+.section-table {
+    margin-bottom: 25px;
+}
+
+.table-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    border: 2px solid #1e3a5f;
+}
+
+.data-table th {
+    background: #1e3a5f;
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 15px;
+    text-transform: uppercase;
+    font-size: 8pt;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+.data-table tbody tr:hover {
+    background: #edf2f7;
+}
+
+.data-table tfoot td {
+    background: #2d3748;
+    color: white;
+    font-weight: 700;
+    border: none;
+}
+
+
+/* Page 2 CSS */
+/* Section: header */
+/* ===========================================
+   Header - Formato Corporate
+   =========================================== */
+
+.section-header {
+    padding-bottom: 20px;
+    border-bottom: 4px solid #1e3a5f;
+    margin-bottom: 30px;
+    background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
+    margin: -15mm -15mm 25px -15mm;
+    padding: 20mm 15mm 15px 15mm;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.header-logo {
+    max-height: 70px;
+    max-width: 180px;
+    object-fit: contain;
+}
+
+.header-text {
+    border-left: 3px solid #1e3a5f;
+    padding-left: 15px;
+}
+
+.header-title {
+    font-size: 24pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.header-subtitle {
+    font-size: 11pt;
+    color: #4a5568;
+    margin: 8px 0 0 0;
+    font-weight: 500;
+}
+
+.header-meta {
+    text-align: right;
+    font-size: 9pt;
+    color: #4a5568;
+}
+
+.header-reference {
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.header-date {
+    color: #718096;
+}
+
+
+/* Section: footer */
+/* ===========================================
+   Footer - Formato Corporate
+   =========================================== */
+
+.section-footer {
+    position: absolute;
+    bottom: 10mm;
+    left: 15mm;
+    right: 15mm;
+    padding-top: 12px;
+    border-top: 2px solid #1e3a5f;
+    font-size: 8pt;
+    color: #4a5568;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-left, .footer-right {
+    flex: 1;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-center {
+    flex: 1;
+    text-align: center;
+}
+
+.confidential {
+    background: #1e3a5f;
+    color: white;
+    padding: 3px 12px;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 2px;
+}
+
+
+/* Section: intro_completa */
+/* ===========================================
+   Text - Formato Corporate
+   =========================================== */
+
+.section-text {
+    margin-bottom: 20px;
+}
+
+.text-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.text-content {
+    font-size: 10pt;
+    line-height: 1.7;
+    color: #2d3748;
+    text-align: justify;
+}
+
+.text-content p {
+    margin-bottom: 12px;
+}
+
+
+/* Section: kpis_ventas */
+/* ===========================================
+   KPI - Formato Corporate
+   =========================================== */
+
+.section-kpi {
+    margin-bottom: 25px;
+}
+
+.kpi-section-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.kpi-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.kpi-card {
+    flex: 1;
+    min-width: 140px;
+    background: #1e3a5f;
+    color: white;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+}
+
+.kpi-value {
+    font-size: 28pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+
+.kpi-label {
+    font-size: 9pt;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
+
+.kpi-change {
+    font-size: 10pt;
+    font-weight: 700;
+    margin-top: 10px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.kpi-change.positive {
+    background: #48bb78;
+}
+
+.kpi-change.negative {
+    background: #f56565;
+}
+
+
+/* Section: ventas_producto */
+/* ===========================================
+   Table - Formato Corporate
+   =========================================== */
+
+.section-table {
+    margin-bottom: 25px;
+}
+
+.table-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    border: 2px solid #1e3a5f;
+}
+
+.data-table th {
+    background: #1e3a5f;
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 15px;
+    text-transform: uppercase;
+    font-size: 8pt;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+.data-table tbody tr:hover {
+    background: #edf2f7;
+}
+
+.data-table tfoot td {
+    background: #2d3748;
+    color: white;
+    font-weight: 700;
+    border: none;
+}
+
+
+/* Page 3 CSS */
+/* Section: header */
+/* ===========================================
+   Header - Formato Corporate
+   =========================================== */
+
+.section-header {
+    padding-bottom: 20px;
+    border-bottom: 4px solid #1e3a5f;
+    margin-bottom: 30px;
+    background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
+    margin: -15mm -15mm 25px -15mm;
+    padding: 20mm 15mm 15px 15mm;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.header-logo {
+    max-height: 70px;
+    max-width: 180px;
+    object-fit: contain;
+}
+
+.header-text {
+    border-left: 3px solid #1e3a5f;
+    padding-left: 15px;
+}
+
+.header-title {
+    font-size: 24pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.header-subtitle {
+    font-size: 11pt;
+    color: #4a5568;
+    margin: 8px 0 0 0;
+    font-weight: 500;
+}
+
+.header-meta {
+    text-align: right;
+    font-size: 9pt;
+    color: #4a5568;
+}
+
+.header-reference {
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.header-date {
+    color: #718096;
+}
+
+
+/* Section: footer */
+/* ===========================================
+   Footer - Formato Corporate
+   =========================================== */
+
+.section-footer {
+    position: absolute;
+    bottom: 10mm;
+    left: 15mm;
+    right: 15mm;
+    padding-top: 12px;
+    border-top: 2px solid #1e3a5f;
+    font-size: 8pt;
+    color: #4a5568;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-left, .footer-right {
+    flex: 1;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-center {
+    flex: 1;
+    text-align: center;
+}
+
+.confidential {
+    background: #1e3a5f;
+    color: white;
+    padding: 3px 12px;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 2px;
+}
+
+
+/* Section: intro_custom */
+/* ===========================================
+   Text - Formato Corporate
+   =========================================== */
+
+.section-text {
+    margin-bottom: 20px;
+}
+
+.text-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.text-content {
+    font-size: 10pt;
+    line-height: 1.7;
+    color: #2d3748;
+    text-align: justify;
+}
+
+.text-content p {
+    margin-bottom: 12px;
+}
+
+
+/* Section: logros */
+
+        .logros-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .logro-item {
+            display: flex;
+            gap: 12px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
+        }
+        .logro-icon { font-size: 24pt; }
+        .logro-content strong { color: #0369a1; }
+        .logro-content p { margin: 5px 0 0 0; font-size: 9pt; color: #64748b; }
+        
+
+/* Section: tareas */
+/* ===========================================
+   Table - Formato Corporate
+   =========================================== */
+
+.section-table {
+    margin-bottom: 25px;
+}
+
+.table-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    border: 2px solid #1e3a5f;
+}
+
+.data-table th {
+    background: #1e3a5f;
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 15px;
+    text-transform: uppercase;
+    font-size: 8pt;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+.data-table tbody tr:hover {
+    background: #edf2f7;
+}
+
+.data-table tfoot td {
+    background: #2d3748;
+    color: white;
+    font-weight: 700;
+    border: none;
+}
+
+
+/* Page 4 CSS */
+/* Section: header */
+/* ===========================================
+   Header - Formato Corporate
+   =========================================== */
+
+.section-header {
+    padding-bottom: 20px;
+    border-bottom: 4px solid #1e3a5f;
+    margin-bottom: 30px;
+    background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
+    margin: -15mm -15mm 25px -15mm;
+    padding: 20mm 15mm 15px 15mm;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.header-logo {
+    max-height: 70px;
+    max-width: 180px;
+    object-fit: contain;
+}
+
+.header-text {
+    border-left: 3px solid #1e3a5f;
+    padding-left: 15px;
+}
+
+.header-title {
+    font-size: 24pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin: 0;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.header-subtitle {
+    font-size: 11pt;
+    color: #4a5568;
+    margin: 8px 0 0 0;
+    font-weight: 500;
+}
+
+.header-meta {
+    text-align: right;
+    font-size: 9pt;
+    color: #4a5568;
+}
+
+.header-reference {
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.header-date {
+    color: #718096;
+}
+
+
+/* Section: footer */
+/* ===========================================
+   Footer - Formato Corporate
+   =========================================== */
+
+.section-footer {
+    position: absolute;
+    bottom: 10mm;
+    left: 15mm;
+    right: 15mm;
+    padding-top: 12px;
+    border-top: 2px solid #1e3a5f;
+    font-size: 8pt;
+    color: #4a5568;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-left, .footer-right {
+    flex: 1;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-center {
+    flex: 1;
+    text-align: center;
+}
+
+.confidential {
+    background: #1e3a5f;
+    color: white;
+    padding: 3px 12px;
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border-radius: 2px;
+}
+
+
+/* Section: finanzas */
+/* ===========================================
+   KPI - Formato Corporate
+   =========================================== */
+
+.section-kpi {
+    margin-bottom: 25px;
+}
+
+.kpi-section-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+}
+
+.kpi-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.kpi-card {
+    flex: 1;
+    min-width: 140px;
+    background: #1e3a5f;
+    color: white;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+}
+
+.kpi-value {
+    font-size: 28pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+
+.kpi-label {
+    font-size: 9pt;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
+
+.kpi-change {
+    font-size: 10pt;
+    font-weight: 700;
+    margin-top: 10px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.kpi-change.positive {
+    background: #48bb78;
+}
+
+.kpi-change.negative {
+    background: #f56565;
+}
+
+
+/* Section: balance */
+/* ===========================================
+   Table - Formato Corporate
+   =========================================== */
+
+.section-table {
+    margin-bottom: 25px;
+}
+
+.table-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    border: 2px solid #1e3a5f;
+}
+
+.data-table th {
+    background: #1e3a5f;
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 15px;
+    text-transform: uppercase;
+    font-size: 8pt;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+.data-table tbody tr:hover {
+    background: #edf2f7;
+}
+
+.data-table tfoot td {
+    background: #2d3748;
+    color: white;
+    font-weight: 700;
+    border: none;
+}
+
+
+/* Section: plan_accion */
+/* ===========================================
+   Table - Formato Corporate
+   =========================================== */
+
+.section-table {
+    margin-bottom: 25px;
+}
+
+.table-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    border: 2px solid #1e3a5f;
+}
+
+.data-table th {
+    background: #1e3a5f;
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 15px;
+    text-transform: uppercase;
+    font-size: 8pt;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+.data-table tbody tr:hover {
+    background: #edf2f7;
+}
+
+.data-table tfoot td {
+    background: #2d3748;
+    color: white;
+    font-weight: 700;
+    border: none;
+}
+
+
+/* Section: nota_final */
+/* ===========================================
+   Text - Formato Corporate
+   =========================================== */
+
+.section-text {
+    margin-bottom: 20px;
+}
+
+.text-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.text-content {
+    font-size: 10pt;
+    line-height: 1.7;
+    color: #2d3748;
+    text-align: justify;
+}
+
+.text-content p {
+    margin-bottom: 12px;
+}
+
+    </style>
+</head>
+<body>
+<div class="page">
+<div class="section section-header">
+<div class="header-content">
+    <div class="header-brand">
+        
+        <div class="header-text">
+            <h1 class="header-title">API Simplificada</h1>
+            <p class="header-subtitle">ReportBuilder & quick_report</p>
+        </div>
+    </div>
+    
+    <div class="header-meta">
+        
+        <div class="header-date">22/01/2026</div>
+    </div>
+    
+</div>
+</div>
+<div class="page-content">
+<div class="section section-intro_simple text">
+<h3 class="text-title">ReportBuilder: Informes en pocas líneas</h3>
+<div class="text-content">
+    
+        <p>La <strong>API Simplificada</strong> permite crear informes profesionales
+        con muy pocas líneas de código usando el patrón <em>builder</em>:</p>
+        
+        <pre><code>builder = (
+    ReportBuilder("Informe", format_name="corporate")
+    .header(title="Título", subtitle="Subtítulo")
+    .footer(left="Empresa", right="Página 1")
+    .add_kpis("kpis", [...])
+    .add_table("tabla", headers=[...], rows=[...])
+)
+builder.export_html("output.html")</code></pre>
+        
+</div>
+</div>
+<div class="section section-kpis_ejemplo kpi">
+<h3 class="kpi-section-title">Ejemplo: KPIs</h3>
+<div class="kpi-container">
+    
+    <div class="kpi-card">
+        <div class="kpi-value">€125K</div>
+        <div class="kpi-label">Ingresos</div>
+        
+        <div class="kpi-change positive">
+            +12%
+        </div>
+        
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-value">1,542</div>
+        <div class="kpi-label">Clientes</div>
+        
+        <div class="kpi-change positive">
+            +8%
+        </div>
+        
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-value">4.2%</div>
+        <div class="kpi-label">Conversión</div>
+        
+        <div class="kpi-change positive">
+            +0.5%
+        </div>
+        
+    </div>
+    
+</div>
+</div>
+<div class="section section-tabla_ejemplo table">
+<h3 class="table-title">Ejemplo: Tabla</h3>
+<table class="data-table">
+    <thead>
+        <tr>
+            
+            <th>Producto</th>
+            
+            <th>Unidades</th>
+            
+            <th>Ingresos</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        
+        <tr>
+            
+            <td>Producto A</td>
+            
+            <td>450</td>
+            
+            <td>€45,000</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Producto B</td>
+            
+            <td>320</td>
+            
+            <td>€32,000</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Producto C</td>
+            
+            <td>280</td>
+            
+            <td>€48,000</td>
+            
+        </tr>
+        
+    </tbody>
+    
+    <tfoot>
+        <tr>
+            
+            <td>Total</td>
+            
+            <td>1,050</td>
+            
+            <td>€125,000</td>
+            
+        </tr>
+    </tfoot>
+    
+</table>
+</div>
+</div>
+<div class="section section-footer">
+<div class="footer-content">
+    <div class="footer-left">NinjaReportPy Demo</div>
+    <div class="footer-center">
+        
+    </div>
+    <div class="footer-right">Página 1 de 4</div>
+</div>
+</div>
+</div>
+<div class="page">
+<div class="section section-header">
+<div class="header-content">
+    <div class="header-brand">
+        
+        <div class="header-text">
+            <h1 class="header-title">API Completa</h1>
+            <p class="header-subtitle">Report, Page & Sections</p>
+        </div>
+    </div>
+    
+</div>
+</div>
+<div class="page-content">
+<div class="section section-intro_completa text">
+<h3 class="text-title">Control Total con Report + Sections</h3>
+<div class="text-content">
+    
+        <p>La <strong>API Completa</strong> ofrece control total sobre cada aspecto
+        del informe, ideal para casos de uso avanzados:</p>
+        
+        <ul>
+            <li><code>Report</code> - Contenedor de páginas</li>
+            <li><code>Page</code> - Header + Footer + Secciones</li>
+            <li><code>Section</code> - Template + CSS + Data personalizados</li>
+            <li><code>TableSection</code>, <code>KPISection</code>, <code>TextSection</code></li>
+        </ul>
+        
+</div>
+</div>
+<div class="section section-kpis_ventas kpi">
+<h3 class="kpi-section-title">Métricas de Ventas Q4 2025</h3>
+<div class="kpi-container">
+    
+    <div class="kpi-card">
+        <div class="kpi-value">€ 1.245.890</div>
+        <div class="kpi-label">Ventas Totales</div>
+        
+        <div class="kpi-change ">
+            15.3
+        </div>
+        
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-value">487</div>
+        <div class="kpi-label">Nuevos Clientes</div>
+        
+        <div class="kpi-change ">
+            8.2
+        </div>
+        
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-value">€ 2.558</div>
+        <div class="kpi-label">Ticket Medio</div>
+        
+        <div class="kpi-change ">
+            -2.1
+        </div>
+        
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-value">23.4%</div>
+        <div class="kpi-label">Conversión</div>
+        
+        <div class="kpi-change ">
+            4.5
+        </div>
+        
+    </div>
+    
+</div>
+</div>
+<div class="section section-ventas_producto table">
+<h3 class="table-title">Ventas por Línea de Producto</h3>
+<table class="data-table">
+    <thead>
+        <tr>
+            
+            <th>Producto</th>
+            
+            <th>Unidades</th>
+            
+            <th>Ingresos</th>
+            
+            <th>% Total</th>
+            
+            <th>vs Q3</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        
+        <tr>
+            
+            <td>Premium Line</td>
+            
+            <td>1.245</td>
+            
+            <td>€ 498.000</td>
+            
+            <td>40%</td>
+            
+            <td>+25%</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Standard</td>
+            
+            <td>3.890</td>
+            
+            <td>€ 389.000</td>
+            
+            <td>31%</td>
+            
+            <td>+12%</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Basic</td>
+            
+            <td>5.670</td>
+            
+            <td>€ 226.800</td>
+            
+            <td>18%</td>
+            
+            <td>+5%</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Accesorios</td>
+            
+            <td>8.900</td>
+            
+            <td>€ 132.090</td>
+            
+            <td>11%</td>
+            
+            <td>+18%</td>
+            
+        </tr>
+        
+    </tbody>
+    
+    <tfoot>
+        <tr>
+            
+            <td>TOTAL</td>
+            
+            <td>19.705</td>
+            
+            <td>€ 1.245.890</td>
+            
+            <td>100%</td>
+            
+            <td>+15%</td>
+            
+        </tr>
+    </tfoot>
+    
+</table>
+</div>
+</div>
+<div class="section section-footer">
+<div class="footer-content">
+    <div class="footer-left">NinjaReportPy Demo</div>
+    <div class="footer-center">
+        
+    </div>
+    <div class="footer-right">Página 2 de 4</div>
+</div>
+</div>
+</div>
+<div class="page">
+<div class="section section-header">
+<div class="header-content">
+    <div class="header-brand">
+        
+        <div class="header-text">
+            <h1 class="header-title">Secciones Personalizadas</h1>
+            <p class="header-subtitle">Templates y CSS propios</p>
+        </div>
+    </div>
+    
+</div>
+</div>
+<div class="page-content">
+<div class="section section-intro_custom text">
+<h3 class="text-title">Section: Template + CSS Personalizados</h3>
+<div class="text-content">
+    
+        <p>Crea secciones completamente personalizadas con tu propio
+        <strong>template Jinja2</strong> y <strong>CSS</strong>:</p>
+        
+</div>
+</div>
+<div class="section section-logros">
+
+        <h2>🏆 Logros Destacados</h2>
+        <div class="logros-grid">
+            
+            <div class="logro-item">
+                <span class="logro-icon">📈</span>
+                <div class="logro-content">
+                    <strong>Récord de Ventas</strong>
+                    <p>Mayor facturación trimestral en la historia</p>
+                </div>
+            </div>
+            
+            <div class="logro-item">
+                <span class="logro-icon">🤝</span>
+                <div class="logro-content">
+                    <strong>Nuevos Partners</strong>
+                    <p>5 nuevos acuerdos estratégicos firmados</p>
+                </div>
+            </div>
+            
+            <div class="logro-item">
+                <span class="logro-icon">⭐</span>
+                <div class="logro-content">
+                    <strong>Satisfacción Cliente</strong>
+                    <p>NPS score de 72 puntos (+8 vs anterior)</p>
+                </div>
+            </div>
+            
+            <div class="logro-item">
+                <span class="logro-icon">🚀</span>
+                <div class="logro-content">
+                    <strong>Eficiencia</strong>
+                    <p>Reducción del 15% en el ciclo de venta</p>
+                </div>
+            </div>
+            
+        </div>
+        
+</div>
+<div class="section section-tareas table">
+<h3 class="table-title">Estado del Sprint</h3>
+<table class="data-table">
+    <thead>
+        <tr>
+            
+            <th>Tarea</th>
+            
+            <th>Asignado</th>
+            
+            <th>Estado</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        
+        <tr>
+            
+            <td>Implementar login OAuth</td>
+            
+            <td>Ana</td>
+            
+            <td>✓ Completado</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Diseño dashboard v2</td>
+            
+            <td>Carlos</td>
+            
+            <td>✓ Completado</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>API endpoints usuarios</td>
+            
+            <td>Laura</td>
+            
+            <td>✓ Completado</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Testing e2e</td>
+            
+            <td>Pedro</td>
+            
+            <td>🔄 En progreso</td>
+            
+        </tr>
+        
+    </tbody>
+    
+</table>
+</div>
+</div>
+<div class="section section-footer">
+<div class="footer-content">
+    <div class="footer-left">NinjaReportPy Demo</div>
+    <div class="footer-center">
+        
+    </div>
+    <div class="footer-right">Página 3 de 4</div>
+</div>
+</div>
+</div>
+<div class="page">
+<div class="section section-header">
+<div class="header-content">
+    <div class="header-brand">
+        
+        <div class="header-text">
+            <h1 class="header-title">Informe Financiero</h1>
+            <p class="header-subtitle">Resultados Q4 2025</p>
+        </div>
+    </div>
+    
+    <div class="header-meta">
+        <div class="header-reference">Ref: FIN-2025-Q4-001</div>
+        
+    </div>
+    
+</div>
+</div>
+<div class="page-content">
+<div class="section section-finanzas kpi">
+<h3 class="kpi-section-title">Indicadores Financieros</h3>
+<div class="kpi-container">
+    
+    <div class="kpi-card">
+        <div class="kpi-value">€ 3.2M</div>
+        <div class="kpi-label">EBITDA</div>
+        
+        <div class="kpi-change ">
+            18
+        </div>
+        
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-value">24.5%</div>
+        <div class="kpi-label">Margen Neto</div>
+        
+        <div class="kpi-change ">
+            3
+        </div>
+        
+    </div>
+    
+    <div class="kpi-card">
+        <div class="kpi-value">156%</div>
+        <div class="kpi-label">ROI</div>
+        
+        <div class="kpi-change ">
+            12
+        </div>
+        
+    </div>
+    
+</div>
+</div>
+<div class="section section-balance table">
+<h3 class="table-title">Estado de Resultados</h3>
+<table class="data-table">
+    <thead>
+        <tr>
+            
+            <th>Concepto</th>
+            
+            <th>Q4 2025</th>
+            
+            <th>Q4 2024</th>
+            
+            <th>Variación</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        
+        <tr>
+            
+            <td>Ingresos operativos</td>
+            
+            <td>€ 12.450.000</td>
+            
+            <td>€ 10.890.000</td>
+            
+            <td>+14.3%</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Costes directos</td>
+            
+            <td>€ 6.230.000</td>
+            
+            <td>€ 5.670.000</td>
+            
+            <td>+9.9%</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Margen bruto</td>
+            
+            <td>€ 6.220.000</td>
+            
+            <td>€ 5.220.000</td>
+            
+            <td>+19.2%</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Gastos operativos</td>
+            
+            <td>€ 3.020.000</td>
+            
+            <td>€ 2.890.000</td>
+            
+            <td>+4.5%</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>EBITDA</td>
+            
+            <td>€ 3.200.000</td>
+            
+            <td>€ 2.330.000</td>
+            
+            <td>+37.3%</td>
+            
+        </tr>
+        
+    </tbody>
+    
+    <tfoot>
+        <tr>
+            
+            <td>Resultado Neto</td>
+            
+            <td>€ 2.560.000</td>
+            
+            <td>€ 1.820.000</td>
+            
+            <td>+40.7%</td>
+            
+        </tr>
+    </tfoot>
+    
+</table>
+</div>
+<div class="section section-plan_accion table">
+<h3 class="table-title">Plan de Acción Q1 2026</h3>
+<table class="data-table">
+    <thead>
+        <tr>
+            
+            <th>Iniciativa</th>
+            
+            <th>Responsable</th>
+            
+            <th>Fecha</th>
+            
+            <th>Prioridad</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        
+        <tr>
+            
+            <td>Expandir equipo comercial Sur</td>
+            
+            <td>RRHH</td>
+            
+            <td>15/01/2026</td>
+            
+            <td>Alta</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Lanzar campaña Premium Line v2</td>
+            
+            <td>Marketing</td>
+            
+            <td>01/02/2026</td>
+            
+            <td>Alta</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Implementar CRM avanzado</td>
+            
+            <td>IT</td>
+            
+            <td>28/02/2026</td>
+            
+            <td>Media</td>
+            
+        </tr>
+        
+        <tr>
+            
+            <td>Programa fidelización Gold</td>
+            
+            <td>Ventas</td>
+            
+            <td>15/03/2026</td>
+            
+            <td>Media</td>
+            
+        </tr>
+        
+    </tbody>
+    
+</table>
+</div>
+<div class="section section-nota_final text">
+<h3 class="text-title">Nota del Director</h3>
+<div class="text-content">
+    
+        <blockquote>
+        "Este ha sido un trimestre excepcional que demuestra el compromiso y talento 
+        de todo nuestro equipo. Miramos hacia 2026 con optimismo y objetivos ambiciosos."
+        </blockquote>
+        <p style="text-align: right; font-style: italic;">— María González, Directora Comercial</p>
+        
+</div>
+</div>
+</div>
+<div class="section section-footer">
+<div class="footer-content">
+    <div class="footer-left">Departamento Financiero</div>
+    <div class="footer-center">
+        
+    </div>
+    <div class="footer-right">Página 4 de 4</div>
+</div>
+</div>
+</div>
+</body>
+</html>
