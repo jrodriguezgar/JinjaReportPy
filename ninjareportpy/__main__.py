@@ -1,4 +1,4 @@
-"""Entry point for running reportpy as a module."""
+"""Entry point for running ninjareportpy as a module."""
 
 from .report import Report
 from .sections import Section, TableSection, KPISection
@@ -7,7 +7,7 @@ from .sections import Section, TableSection, KPISection
 def main() -> None:
     """Demo: Genera un informe de ventas con la API programática."""
     print("=" * 60)
-    print("  ReportPy - Generador de Informes Programático")
+    print("  NinjaReportPy - Generador de Informes Programático")
     print("=" * 60)
     print()
 
@@ -25,7 +25,7 @@ def main() -> None:
 
     # Pie de página
     page1.set_footer(
-        left_text="Generado con ReportPy",
+        left_text="Generado con NinjaReportPy",
         right_text="Página 1",
     )
 

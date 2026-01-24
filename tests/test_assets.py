@@ -5,8 +5,8 @@ from pathlib import Path
 import tempfile
 import base64
 
-from reportpy.assets import AssetManager
-from reportpy.exceptions import AssetNotFoundError
+from ninjareportpy.assets import AssetManager
+from ninjareportpy.exceptions import AssetNotFoundError
 
 
 class TestAssetManager:

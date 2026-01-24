@@ -15,7 +15,7 @@ To run:
 from datetime import datetime
 from pathlib import Path
 
-from reportpy import (
+from ninjareportpy import (
     # Base
     BaseDocument,
     # Documents
@@ -45,9 +45,10 @@ def main():
     formats = get_available_formats()
     print(f"📁 Available formats: {', '.join(formats)}")
     
-    # Create output directory
-    output_dir = Path("output")
-    output_dir.mkdir(exist_ok=True)
+    # Use default portable output directory (ninjareportpy/output)
+    # No need to create it manually - ReportConfig does it automatically
+    from ninjareportpy.config import ReportConfig
+    output_dir = ReportConfig().output_dir
     
     # =========================================================================
     # CREATE MULTI-PAGE REPORT

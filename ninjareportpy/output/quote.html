@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivery Note DN-2026-007</title>
+    <title>Quote QT-2026-015</title>
     <style>
 
 /* Reset & Base */
@@ -694,8 +694,8 @@ tbody tr:hover { background: #f8fafc; }
                 
             </div>
             <div class="header-info">
-                <div class="title">DELIVERY NOTE</div>
-                <div class="subtitle">No. DN-2026-007</div>
+                <div class="title">QUOTE</div>
+                <div class="subtitle">No. QT-2026-015</div>
             </div>
         </header>
         
@@ -705,7 +705,7 @@ tbody tr:hover { background: #f8fafc; }
 <div class="row mb-4">
     <div class="col-6">
         <div class="card">
-            <div class="card-header">Shipper</div>
+            <div class="card-header">From</div>
             <strong>TechSolutions Inc.</strong><br>
             123 Innovation Street<br>
             San Francisco 94102<br>
@@ -714,7 +714,7 @@ tbody tr:hover { background: #f8fafc; }
     </div>
     <div class="col-6">
         <div class="card">
-            <div class="card-header">Recipient</div>
+            <div class="card-header">To</div>
             <strong>Example Corp.</strong><br>
             456 Main Avenue<br>
             New York 10001<br>
@@ -725,103 +725,108 @@ tbody tr:hover { background: #f8fafc; }
 
 <div class="row mb-4">
     <div class="col-6">
-        <p><strong>Delivery Date:</strong> 22/01/2026</p>
+        <p><strong>Issue Date:</strong> 24/01/2026</p>
     </div>
     <div class="col-6 text-right">
-        <p><strong>Delivery No.:</strong> DN-2026-007</p>
+        <p><strong>Valid Until:</strong> 23/02/2026</p>
     </div>
 </div>
 
-
-<div class="card mb-4">
-    <div class="card-header">📍 Shipping Address</div>
-    <p>Data Center - 10 Server Street, New York 10001</p>
+<div class="quote-validity">
+    ⚠️ This quote is valid for <strong>30 days</strong> 
+    from the issue date.
 </div>
 
-
-<h3>Items Delivered</h3>
+<h3>Items</h3>
 <table class="table-bordered">
     <thead>
         <tr>
-            <th style="width: 10%">Code</th>
             <th style="width: 50%">Description</th>
-            <th class="text-center" style="width: 15%">Quantity</th>
-            <th class="text-center" style="width: 15%">Unit</th>
-            <th class="text-center" style="width: 10%">Received</th>
+            <th class="text-center" style="width: 10%">Qty</th>
+            <th class="text-right" style="width: 20%">Unit Price</th>
+            <th class="text-right" style="width: 20%">Total</th>
         </tr>
     </thead>
     <tbody>
         
         <tr>
-            <td>HW-001</td>
-            <td>Dell PowerEdge R750 Server</td>
-            <td class="text-center">2</td>
-            <td class="text-center">pcs</td>
-            <td class="text-center">☐</td>
-        </tr>
-        
-        <tr>
-            <td>HW-002</td>
-            <td>Cisco Catalyst 9300 Switch</td>
+            <td>Mobile App UX/UI Design</td>
             <td class="text-center">1</td>
-            <td class="text-center">pcs</td>
-            <td class="text-center">☐</td>
+            <td class="text-right">3.500,00 €</td>
+            <td class="text-right">3.500,00 €</td>
         </tr>
         
         <tr>
-            <td>HW-003</td>
-            <td>Cat6 Cable (meters)</td>
-            <td class="text-center">100</td>
-            <td class="text-center">m</td>
-            <td class="text-center">☐</td>
+            <td>Native iOS Development</td>
+            <td class="text-center">1</td>
+            <td class="text-right">8.000,00 €</td>
+            <td class="text-right">8.000,00 €</td>
         </tr>
         
         <tr>
-            <td>SW-001</td>
-            <td>Windows Server 2022 License</td>
-            <td class="text-center">2</td>
-            <td class="text-center">lic</td>
-            <td class="text-center">☐</td>
+            <td>Native Android Development</td>
+            <td class="text-center">1</td>
+            <td class="text-right">8.000,00 €</td>
+            <td class="text-right">8.000,00 €</td>
+        </tr>
+        
+        <tr>
+            <td>REST API Backend</td>
+            <td class="text-center">1</td>
+            <td class="text-right">5.000,00 €</td>
+            <td class="text-right">5.000,00 €</td>
+        </tr>
+        
+        <tr>
+            <td>Testing &amp; QA</td>
+            <td class="text-center">1</td>
+            <td class="text-right">2.000,00 €</td>
+            <td class="text-right">2.000,00 €</td>
         </tr>
         
     </tbody>
 </table>
 
-
-<div class="info-box mt-4">
-    <strong>Notes:</strong><br>
-    Urgent delivery. Contact John Smith (ext. 234) for access.
+<div class="row">
+    <div class="col-6">
+        
+        <div class="info-box">
+            <strong>Notes:</strong><br>
+            Includes 3 months post-launch maintenance.
+        </div>
+        
+    </div>
+    <div class="col-6">
+        <table class="table-compact">
+            <tr>
+                <td class="text-right"><strong>Subtotal:</strong></td>
+                <td class="text-right" style="width: 100px">26.500,00 €</td>
+            </tr>
+            <tr>
+                <td class="text-right">VAT 21.0%:</td>
+                <td class="text-right">5.565,00 €</td>
+            </tr>
+            <tr class="border-top">
+                <td class="text-right"><strong>TOTAL:</strong></td>
+                <td class="text-right font-bold" style="font-size: 12pt">32.065,00 €</td>
+            </tr>
+        </table>
+    </div>
 </div>
 
 
-<div class="contract-signature">
-    <div class="signature-block">
-        <p class="text-muted">Delivered by</p>
-        <div class="signature-line">
-            Name: _____________________<br>
-            ID: _____________________
-        </div>
-    </div>
-    <div class="signature-block">
-        <p class="text-muted">Received by</p>
-        <div class="signature-line">
-            Name: _____________________<br>
-            ID: _____________________
-        </div>
-    </div>
+<div class="card mt-4">
+    <div class="card-header">Terms and Conditions</div>
+    <p style="font-size: 9pt;">Payment: 50% upfront, 50% on delivery. Estimated timeline: 4 months.</p>
 </div>
 
-<p class="text-center text-muted mt-4" style="font-size: 8pt;">
-    This delivery note is not valid as an invoice. 
-    The corresponding invoice will be issued separately.
-</p>
 
 
         </main>
         
         
         <footer class="report-footer">
-            <span>Generado el 22/01/2026 13:50</span>
+            <span>Generado el 24/01/2026 18:55</span>
             <span>ReportPy</span>
         </footer>
         

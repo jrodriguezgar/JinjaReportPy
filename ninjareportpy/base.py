@@ -239,7 +239,8 @@ class BaseDocument(ABC):
             path = self.config.output_dir / filename
         else:
             path = Path(path)
-            if path.is_dir():
+            # Treat as directory when it already exists or when no file extension is provided.
+            if path.is_dir() or path.suffix == "":
                 path = path / filename
         
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -282,7 +283,8 @@ class BaseDocument(ABC):
             path = self.config.output_dir / filename
         else:
             path = Path(path)
-            if path.is_dir():
+            # Treat as directory when it already exists or when no file extension is provided.
+            if path.is_dir() or path.suffix == "":
                 path = path / filename
         
         html_to_pdf(html, path)
@@ -321,7 +323,7 @@ class BaseDocument(ABC):
         import tempfile
         from .viewer import open_pdf_viewer
         
-        temp_dir = Path(tempfile.gettempdir()) / "reportpy"
+        temp_dir = Path(tempfile.gettempdir()) / "ninjareportpy"
         temp_dir.mkdir(exist_ok=True)
         pdf_path = temp_dir / f"preview_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         
