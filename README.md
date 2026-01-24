@@ -62,7 +62,7 @@ The library provides convenient factory functions for common document types:
 Creates a professional invoice with automatic calculations (subtotals, taxes, totals).
 
 ```python
-from reportpy import create_invoice
+from ninjareportpy import create_invoice
 
 invoice = create_invoice(
     # Required parameters
@@ -126,7 +126,7 @@ invoice.preview()  # Open in browser
 Creates a quote with validity period and optional discount.
 
 ```python
-from reportpy import create_quote
+from ninjareportpy import create_quote
 
 quote = create_quote(
     # Required parameters
@@ -166,7 +166,7 @@ quote.export_pdf("quote.pdf")
 Creates a receipt for payment confirmation.
 
 ```python
-from reportpy import create_receipt
+from ninjareportpy import create_receipt
 
 receipt = create_receipt(
     # Required parameters
@@ -202,7 +202,7 @@ receipt.export_pdf("receipt.pdf")
 Creates a delivery/shipping note for goods dispatch.
 
 ```python
-from reportpy import create_delivery_note
+from ninjareportpy import create_delivery_note
 
 delivery = create_delivery_note(
     # Required parameters
@@ -249,7 +249,7 @@ delivery.export_html("delivery_note.html")
 Create any document type with custom templates:
 
 ```python
-from reportpy import Document
+from ninjareportpy import Document
 
 # Option 1: Inline template
 doc = Document(
@@ -300,7 +300,7 @@ You can add custom templates in two ways:
 ### Simplified API (Recommended)
 
 ```python
-from reportpy import ReportBuilder
+from ninjareportpy import ReportBuilder
 
 builder = (
     ReportBuilder("Weekly Sales Report", format_name="corporate")
@@ -353,7 +353,7 @@ body_only = builder.to_clipboard_html()  # Returns body HTML as string (for emai
 For complete control over multi-page reports:
 
 ```python
-from reportpy import (
+from ninjareportpy import (
     Report, 
     Section, 
     TableSection, 
@@ -489,7 +489,7 @@ Section(
 Three predefined formats are available:
 
 ```python
-from reportpy import set_default_format, get_available_formats
+from ninjareportpy import set_default_format, get_available_formats
 
 print(get_available_formats())  # ['corporate', 'default', 'minimal']
 
@@ -510,6 +510,91 @@ builder = ReportBuilder("Report", format_name="minimal")
 
 ## 🔧 Advanced Features
 
+### Output Directory Configuration
+
+By default, all generated files are saved to the `output/` subdirectory inside the `ninjareportpy` package directory, making it portable regardless of the current working directory. You can customize this behavior:
+
+#### Using ReportConfig
+
+```python
+from ninjareportpy import Report, Document, ReportConfig
+from pathlib import Path
+
+# Create custom configuration
+config = ReportConfig(
+    output_dir=Path("./my_reports"),  # Custom output directory
+    # Other options:
+    # page_size=PageSize.A4,
+    # orientation=Orientation.PORTRAIT,
+    # locale="es_ES",
+)
+
+# Use with Document
+doc = Document(
+    title="My Document",
+    template="<h1>{{ title }}</h1>",
+    data={"title": "Hello"},
+    config=config,
+)
+doc.export_html()  # Saves to ./my_reports/document.html
+
+# Use with Report
+report = Report(title="My Report", config=config)
+page = report.add_page()
+# ... add sections ...
+report.export_html()  # Saves to ./my_reports/report.html
+```
+
+#### Per-Export Custom Path
+
+You can also specify the path for each export operation:
+
+```python
+# Full path
+invoice.export_html("C:/Documents/invoices/invoice_2026.html")
+invoice.export_pdf("/reports/invoice.pdf")
+
+# Directory + filename
+invoice.export_html(Path("./reports"), filename="invoice_jan.html")
+report.export_pdf(Path("./archives"), filename="report_q4.pdf")
+
+# Using default config.output_dir (ninjareportpy/output)
+invoice.export_html()  # Uses config.output_dir / "document.html"
+```
+
+#### ReportConfig Options
+
+| Parameter            | Type              | Default        | Description                                |
+| -------------------- | ----------------- | -------------- | ------------------------------------------ |
+| `output_dir`       | `Path`          | `./output`   | Default directory for generated files      |
+| `template_dirs`    | `list[Path]`    | `[]`         | Custom template directories                |
+| `assets_dir`       | `Path \| None`  | `None`       | Directory for images/logos/assets          |
+| `page_size`        | `PageSize`      | `A4`         | Page size for PDF (A4, A3, LETTER, LEGAL) |
+| `orientation`      | `Orientation`   | `PORTRAIT`   | Page orientation (PORTRAIT, LANDSCAPE)     |
+| `encoding`         | `str`           | `"utf-8"`    | Character encoding                         |
+| `locale`           | `str`           | `"es_ES"`    | Locale for formatting (es_ES, en_US, etc.) |
+| `browser_command`  | `str \| None`   | `None`       | Custom browser command for preview         |
+| `pdf_viewer_command` | `str \| None` | `None`       | Custom PDF viewer command                  |
+
+**Example:**
+
+```python
+from ninjareportpy import ReportConfig, PageSize, Orientation
+from pathlib import Path
+
+config = ReportConfig(
+    output_dir=Path("./reports/2026"),
+    assets_dir=Path("./assets"),
+    page_size=PageSize.LETTER,
+    orientation=Orientation.LANDSCAPE,
+    locale="en_US",
+)
+```
+
+The output directory is **automatically created** if it doesn't exist.
+
+---
+
 ### Corporate Branding (Logo & Colors)
 
 Customize documents and reports with your corporate identity:
@@ -519,7 +604,7 @@ Customize documents and reports with your corporate identity:
 For documents (invoices, quotes, etc.), include the logo in the company data:
 
 ```python
-from reportpy import create_invoice
+from ninjareportpy import create_invoice
 
 invoice = create_invoice(
     invoice_number="INV-2026-001",
@@ -535,7 +620,7 @@ invoice = create_invoice(
 For reports, add the logo in the header:
 
 ```python
-from reportpy import ReportBuilder
+from ninjareportpy import ReportBuilder
 
 builder = ReportBuilder("Annual Report")
 builder.header(
@@ -549,7 +634,7 @@ builder.header(
 Override CSS variables to change colors throughout the document:
 
 ```python
-from reportpy import create_invoice, ReportBuilder
+from ninjareportpy import create_invoice, ReportBuilder
 
 # Custom CSS to override default colors
 corporate_css = """
@@ -600,7 +685,7 @@ builder.export_pdf("branded_report.pdf")
 #### Complete Branding Example
 
 ```python
-from reportpy import ReportBuilder, KPISection, TableSection
+from ninjareportpy import ReportBuilder, KPISection, TableSection
 
 # Define brand colors
 brand_css = """
@@ -654,7 +739,7 @@ Available filters in templates:
 
 ```python
 import pandas as pd
-from reportpy import ReportBuilder
+from ninjareportpy import ReportBuilder
 
 df = pd.DataFrame({
     "Product": ["A", "B", "C"],
@@ -676,7 +761,7 @@ pip install ninjareportpy[gui]
 ```
 
 ```python
-from reportpy import Report, check_winformpy_available
+from ninjareportpy import Report, check_winformpy_available
 
 # Check if WinFormPy is available
 if check_winformpy_available():
@@ -701,7 +786,7 @@ Or embed in your own forms:
 
 ```python
 from winformpy import Form, DockStyle, Application
-from reportpy import create_invoice
+from ninjareportpy import create_invoice
 
 class InvoiceViewer(Form):
     def __init__(self):
@@ -749,10 +834,54 @@ Available viewer functions:
 uv run pytest
 
 # With coverage
-uv run pytest --cov=reportpy
+uv run pytest --cov=ninjareportpy
 
 # Specific test file
 uv run pytest tests/test_report.py -v
+```
+
+### Running the Demo
+
+To verify the installation and functionality:
+
+```bash
+# Set PYTHONPATH and run demo
+# Windows (PowerShell)
+$env:PYTHONPATH="."; python examples/demo.py
+
+# Linux/macOS
+PYTHONPATH=. python examples/demo.py
+```
+
+The demo will:
+- ✅ Generate a multi-page report with all section types
+- ✅ Create sample invoice, quote, receipt, and delivery note
+- ✅ Save all outputs to `ninjareportpy/output/` directory
+- ✅ Open the invoice in your default browser
+
+**Expected output:**
+```
+🥷 NinjaReportPy - Complete Demo
+==================================================
+📁 Available formats: corporate, default, minimal
+
+📊 Page 1: Simplified API...
+📊 Page 2: Full Control API...
+📊 Page 3: Custom Sections...
+📊 Page 4: Corporate Format...
+   ✓ Report: C:\...\ninjareportpy\output\demo_report.html
+
+📄 Generating Documents...
+   ✓ Invoice: C:\...\ninjareportpy\output\invoice.html
+   ✓ Quote: C:\...\ninjareportpy\output\quote.html
+   ✓ Receipt: C:\...\ninjareportpy\output\receipt.html
+   ✓ Delivery Note: C:\...\ninjareportpy\output\delivery_note.html
+   ✓ Quote: output\quote.html
+   ✓ Receipt: output\receipt.html
+   ✓ Delivery Note: output\delivery_note.html
+
+==================================================
+✨ Everything generated successfully!
 ```
 
 ---
@@ -760,32 +889,64 @@ uv run pytest tests/test_report.py -v
 ## 📁 Project Structure
 
 ```
-ninjareportpy/
-└── reportpy/
-    ├── __init__.py      # Public API exports
-    ├── base.py          # BaseDocument abstract class
-    ├── document.py      # Document class + factory functions
-    ├── report.py        # Report class (multi-page)
-    ├── page.py          # Page class (header + footer + sections)
-    ├── sections.py      # Section classes
-    ├── builder.py       # ReportBuilder simplified API
-    ├── config.py        # Configuration (PageSize, Orientation)
-    ├── assets.py        # Asset management (Base64)
-    ├── filters.py       # Custom Jinja2 filters
-    ├── pdf.py           # PDF export via WeasyPrint
-    ├── viewer.py        # Browser preview + WinFormPy integration
-    ├── exceptions.py    # Custom exceptions
-    ├── templates/       # HTML templates
-    │   ├── base.html
-    │   ├── invoice.html
-    │   ├── quote.html
-    │   ├── receipt.html
-    │   └── delivery_note.html
-    └── formats/         # Predefined formats
-        ├── default/
-        ├── corporate/
-        └── minimal/
+NinjaReportPy/                    # Project root
+├── ninjareportpy/                # 📦 Main package (portable, self-contained)
+│   ├── __init__.py            # Public API exports
+│   ├── __main__.py            # CLI entry point
+│   ├── base.py                # BaseDocument abstract class
+│   ├── document.py            # Document class + factory functions
+│   ├── report.py              # Report class (multi-page)
+│   ├── page.py                # Page class
+│   ├── sections.py            # Section classes
+│   ├── builder.py             # ReportBuilder API
+│   ├── config.py              # Configuration classes
+│   ├── assets.py              # Asset management
+│   ├── filters.py             # Jinja2 filters
+│   ├── pdf.py                 # PDF export
+│   ├── viewer.py              # Browser/PDF viewer
+│   ├── generator.py           # Legacy API
+│   ├── exceptions.py          # Custom exceptions
+│   ├── templates/             # 📄 Built-in document templates
+│   │   ├── base.html
+│   │   ├── invoice.html
+│   │   ├── quote.html
+│   │   ├── receipt.html
+│   │   └── delivery_note.html
+│   ├── formats/               # 🎨 Predefined formats
+│   │   ├── default/
+│   │   ├── corporate/
+│   │   └── minimal/
+│   └── output/                # 📂 Generated files (auto-created, portable)
+│
+├── examples/                  # 📚 Usage examples
+│   ├── demo.py
+│   └── test_output_config.py
+│
+├── tests/                     # 🧪 Unit tests
+│   ├── test_report.py
+│   ├── test_generator.py
+│   └── test_assets.py
+│
+├── .github/                  # GitHub configuration
+│   └── copilot-instructions.md
+│
+├── pyproject.toml            # Project metadata & dependencies
+└── README.md                 # Documentation
 ```
+
+### Directory Organization
+
+**Inside `ninjareportpy/` package** (📦 Portable, self-contained):
+- **Source code**: All `.py` modules
+- **templates/**: Built-in HTML templates for documents
+- **formats/**: Predefined styling formats (default, corporate, minimal)
+- **output/**: Default output directory for generated files (auto-created)
+
+**Outside package** (Project development files):
+- **examples/**: Demo scripts and usage examples
+- **tests/**: Unit tests
+- **.github/**: Project documentation and CI configuration
+- **pyproject.toml**: Package configuration
 
 ---
 

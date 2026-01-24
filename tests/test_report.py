@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 import tempfile
 
-from reportpy import (
+from ninjareportpy import (
     Report,
     Page,
     Section,

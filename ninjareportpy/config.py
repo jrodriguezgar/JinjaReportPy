@@ -6,6 +6,19 @@ from pathlib import Path
 from typing import Any
 
 
+def _default_output_dir() -> Path:
+    """Return the default output directory under the application root.
+
+    Uses the package location (portable) rather than the current working directory.
+    Falls back to the current working directory if resolution fails.
+    """
+    try:
+        base_dir = Path(__file__).resolve().parent  # package directory (ninjareportpy)
+    except Exception:
+        base_dir = Path.cwd()
+    return base_dir / "output"
+
+
 class PageSize(Enum):
     """Standard page sizes for print reports."""
 
@@ -49,7 +62,7 @@ class ReportConfig:
 
     template_dirs: list[Path] = field(default_factory=list)
     assets_dir: Path | None = None
-    output_dir: Path = field(default_factory=lambda: Path("./output"))
+    output_dir: Path = field(default_factory=_default_output_dir)
     page_size: PageSize = PageSize.A4
     orientation: Orientation = Orientation.PORTRAIT
     encoding: str = "utf-8"

@@ -12,23 +12,49 @@ BaseDocument (ABC)      ← Abstract base class
 
 ## Project Structure
 
-- `ninjareportpy/reportpy/` - Main package source code
-  - `base.py` - **BaseDocument** (abstract base class)
-  - `document.py` - **Document** class + factories (create_invoice, create_quote, etc.)
-  - `report.py` - **Report** class (multi-page reports)
-  - `page.py` - Page class (header + footer + sections)
-  - `sections.py` - Section classes (Section, TableSection, KPISection, etc.)
-  - `builder.py` - Simplified API: ReportBuilder, quick_report, configs
-  - `templates/` - Document templates (invoice.html, quote.html, receipt.html, delivery_note.html)
-  - `formats/` - Predefined formats (default, corporate, minimal)
-  - `config.py` - Configuration classes (PageSize, Orientation)
-  - `assets.py` - Asset management (Base64 encoding)
-  - `filters.py` - Custom Jinja2 filters
-  - `pdf.py` - PDF export via WeasyPrint
-  - `viewer.py` - Browser/PDF viewer + WinFormPy embedded browser integration
-  - `exceptions.py` - Custom exceptions
-- `examples/` - Usage examples
+```
+NinjaReportPy/                    # Project root
+├── ninjareportpy/                # 📦 Main package (portable, self-contained)
+│   ├── __init__.py            # Public API exports
+│   ├── __main__.py            # CLI entry point
+│   ├── base.py                # BaseDocument abstract class
+│   ├── document.py            # Document class + factory functions
+│   ├── report.py              # Report class (multi-page)
+│   ├── page.py                # Page class
+│   ├── sections.py            # Section classes
+│   ├── builder.py             # ReportBuilder API
+│   ├── config.py              # Configuration classes
+│   ├── assets.py              # Asset management
+│   ├── filters.py             # Jinja2 filters
+│   ├── pdf.py                 # PDF export
+│   ├── viewer.py              # Browser/PDF viewer
+│   ├── generator.py           # Legacy API
+│   ├── exceptions.py          # Custom exceptions
+│   ├── templates/             # Built-in document templates
+│   │   ├── invoice.html, quote.html, receipt.html, delivery_note.html
+│   ├── formats/               # Predefined formats (default, corporate, minimal)
+│   └── output/                # Generated files (auto-created, portable)
+│
+├── examples/                  # Usage examples (demo.py, test_output_config.py)
+├── tests/                     # Unit tests
+├── .github/                  # Project documentation
+├── pyproject.toml            # Package configuration
+└── README.md
+```
+
+### Directory Organization
+
+**INSIDE `ninjareportpy/`** (Portable package):
+- Source code modules (.py files)
+- `templates/` - Built-in HTML templates
+- `formats/` - Predefined styling formats
+- `output/` - Default output for generated files (auto-created)
+
+**OUTSIDE `ninjareportpy/`** (Project files):
+- `examples/` - Demo and usage examples
 - `tests/` - Unit tests
+- `.github/` - Documentation and CI
+- `pyproject.toml` - Package metadata
 
 ## Development Guidelines
 
@@ -49,8 +75,12 @@ BaseDocument (ABC)      ← Abstract base class
 ## Running the Project
 
 ```bash
-# Demo
-uv run python examples/demo.py
+# Demo (requires setting PYTHONPATH)
+# Windows PowerShell:
+$env:PYTHONPATH="."; python examples/demo.py
+
+# Linux/macOS:
+PYTHONPATH=. python examples/demo.py
 
 # With PDF support
 uv add ninjareportpy[pdf]
@@ -60,7 +90,7 @@ uv add ninjareportpy[pdf]
 
 ```bash
 uv run pytest
-uv run pytest --cov=reportpy
+uv run pytest --cov=ninjareportpy
 ```
 
 ## Code Patterns
@@ -68,7 +98,7 @@ uv run pytest --cov=reportpy
 ### Documents (Invoices, Quotes, Receipts, Delivery Notes)
 
 ```python
-from reportpy import create_invoice, create_quote, create_receipt, create_delivery_note
+from ninjareportpy import create_invoice, create_quote, create_receipt, create_delivery_note
 
 # Invoice
 invoice = create_invoice(
@@ -119,7 +149,7 @@ Custom templates can be added in two ways:
 2. **Via code**: Pass inline template string to `template` parameter
 
 ```python
-from reportpy import Document
+from ninjareportpy import Document
 
 doc = Document(
     title="Contract",
@@ -136,7 +166,7 @@ doc.export_pdf("contract.pdf")
 ### Reports (Simplified API - Recommended)
 
 ```python
-from reportpy import ReportBuilder
+from ninjareportpy import ReportBuilder
 
 builder = (
     ReportBuilder("My Report", format_name="corporate")
@@ -164,7 +194,7 @@ body_only = builder.to_clipboard_html()  # Returns body HTML as string
 ### Reports (Full Control API)
 
 ```python
-from reportpy import Report, Section, TableSection, KPISection, set_default_format
+from ninjareportpy import Report, Section, TableSection, KPISection, set_default_format
 
 set_default_format("corporate")
 
@@ -216,7 +246,7 @@ Section(name, template="<p>{{ var }}</p>", data={}, css="")
 ### Using Formats
 
 ```python
-from reportpy import set_default_format, get_available_formats
+from ninjareportpy import set_default_format, get_available_formats
 
 print(get_available_formats())  # ['corporate', 'default', 'minimal']
 set_default_format("corporate")
@@ -277,7 +307,7 @@ uv add ninjareportpy[gui]
 ```
 
 ```python
-from reportpy import Report, check_winformpy_available
+from ninjareportpy import Report, check_winformpy_available
 
 # Check if WinFormPy is available
 if check_winformpy_available():
@@ -302,7 +332,7 @@ Or embed in your own forms:
 
 ```python
 from winformpy import Form, Panel, DockStyle, Application
-from reportpy import Document, create_invoice
+from ninjareportpy import Document, create_invoice
 
 class InvoiceViewer(Form):
     def __init__(self):
@@ -328,10 +358,45 @@ Application.Run(app)
 Available viewer functions:
 
 ```python
-from reportpy import (
+from ninjareportpy import (
     check_winformpy_available,   # Check if WinFormPy is installed
     create_embedded_browser,     # Create basic WebBrowser control
     create_browser_panel,        # Create WebBrowserPanel with navigation
     open_in_embedded_browser,    # Create and display HTML in one call
 )
 ```
+
+### Output Directory Configuration
+
+By default, generated files are saved to `output/` inside the `ninjareportpy` package directory, so it is portable regardless of the current working directory. Customize with `ReportConfig`:
+
+```python
+from ninjareportpy import Report, Document, ReportConfig
+from pathlib import Path
+
+# Custom output directory
+config = ReportConfig(
+    output_dir=Path("./my_reports"),
+    page_size=PageSize.A4,
+    orientation=Orientation.PORTRAIT,
+    locale="es_ES",
+)
+
+# Use with documents and reports
+doc = Document(title="Doc", template="<h1>Test</h1>", config=config)
+report = Report(title="Report", config=config)
+
+# Or specify path per export
+invoice.export_html("C:/reports/invoice.html")
+invoice.export_pdf(Path("./archives"), filename="invoice.pdf")
+```
+
+**ReportConfig parameters:**
+- `output_dir` (Path): Default output directory (default: `./output`)
+- `template_dirs` (list[Path]): Custom template directories
+- `assets_dir` (Path): Assets directory for images/logos
+- `page_size` (PageSize): A4, A3, LETTER, LEGAL
+- `orientation` (Orientation): PORTRAIT, LANDSCAPE
+- `locale` (str): Locale for formatting (es_ES, en_US, etc.)
+
+The output directory is **auto-created** if it doesn't exist.

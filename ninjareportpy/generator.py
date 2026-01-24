@@ -24,7 +24,7 @@ class ReportGenerator:
     - Opening reports in browser or PDF viewer
 
     Example:
-        >>> from reportpy import ReportGenerator, ReportConfig
+        >>> from ninjareportpy import ReportGenerator, ReportConfig
         >>> config = ReportConfig(template_dirs=["./templates"])
         >>> generator = ReportGenerator(config)
         >>> html = generator.render("invoice.html", {"items": items})

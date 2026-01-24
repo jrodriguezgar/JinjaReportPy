@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice INV-2026-001</title>
+    <title>Delivery Note DN-2026-007</title>
     <style>
 
 /* Reset & Base */
@@ -694,8 +694,8 @@ tbody tr:hover { background: #f8fafc; }
                 
             </div>
             <div class="header-info">
-                <div class="title">INVOICE</div>
-                <div class="subtitle">No. INV-2026-001</div>
+                <div class="title">DELIVERY NOTE</div>
+                <div class="subtitle">No. DN-2026-007</div>
             </div>
         </header>
         
@@ -705,7 +705,7 @@ tbody tr:hover { background: #f8fafc; }
 <div class="row mb-4">
     <div class="col-6">
         <div class="card">
-            <div class="card-header">From</div>
+            <div class="card-header">Shipper</div>
             <strong>TechSolutions Inc.</strong><br>
             123 Innovation Street<br>
             San Francisco 94102<br>
@@ -714,7 +714,7 @@ tbody tr:hover { background: #f8fafc; }
     </div>
     <div class="col-6">
         <div class="card">
-            <div class="card-header">Bill To</div>
+            <div class="card-header">Recipient</div>
             <strong>Example Corp.</strong><br>
             456 Main Avenue<br>
             New York 10001<br>
@@ -725,108 +725,103 @@ tbody tr:hover { background: #f8fafc; }
 
 <div class="row mb-4">
     <div class="col-6">
-        <p><strong>Issue Date:</strong> 22/01/2026</p>
+        <p><strong>Delivery Date:</strong> 24/01/2026</p>
     </div>
     <div class="col-6 text-right">
-        <p><strong>Due Date:</strong> 21/02/2026</p>
+        <p><strong>Delivery No.:</strong> DN-2026-007</p>
     </div>
 </div>
 
-<h3>Items</h3>
+
+<div class="card mb-4">
+    <div class="card-header">📍 Shipping Address</div>
+    <p>Data Center - 10 Server Street, New York 10001</p>
+</div>
+
+
+<h3>Items Delivered</h3>
 <table class="table-bordered">
     <thead>
         <tr>
+            <th style="width: 10%">Code</th>
             <th style="width: 50%">Description</th>
-            <th class="text-center" style="width: 10%">Qty</th>
-            <th class="text-right" style="width: 15%">Unit Price</th>
-            <th class="text-right" style="width: 10%">VAT</th>
-            <th class="text-right" style="width: 15%">Total</th>
+            <th class="text-center" style="width: 15%">Quantity</th>
+            <th class="text-center" style="width: 15%">Unit</th>
+            <th class="text-center" style="width: 10%">Received</th>
         </tr>
     </thead>
     <tbody>
         
         <tr>
-            <td>Web Development - React Frontend</td>
-            <td class="text-center">40</td>
-            <td class="text-right">75,00 €</td>
-            <td class="text-right">21.0%</td>
-            <td class="text-right">3.000,00 €</td>
+            <td>HW-001</td>
+            <td>Dell PowerEdge R750 Server</td>
+            <td class="text-center">2</td>
+            <td class="text-center">pcs</td>
+            <td class="text-center">☐</td>
         </tr>
         
         <tr>
-            <td>Web Development - Python Backend</td>
-            <td class="text-center">60</td>
-            <td class="text-right">85,00 €</td>
-            <td class="text-right">21.0%</td>
-            <td class="text-right">5.100,00 €</td>
-        </tr>
-        
-        <tr>
-            <td>Cloud Server Configuration</td>
+            <td>HW-002</td>
+            <td>Cisco Catalyst 9300 Switch</td>
             <td class="text-center">1</td>
-            <td class="text-right">500,00 €</td>
-            <td class="text-right">21.0%</td>
-            <td class="text-right">500,00 €</td>
+            <td class="text-center">pcs</td>
+            <td class="text-center">☐</td>
         </tr>
         
         <tr>
-            <td>Monthly Support</td>
-            <td class="text-center">3</td>
-            <td class="text-right">200,00 €</td>
-            <td class="text-right">21.0%</td>
-            <td class="text-right">600,00 €</td>
+            <td>HW-003</td>
+            <td>Cat6 Cable (meters)</td>
+            <td class="text-center">100</td>
+            <td class="text-center">m</td>
+            <td class="text-center">☐</td>
+        </tr>
+        
+        <tr>
+            <td>SW-001</td>
+            <td>Windows Server 2022 License</td>
+            <td class="text-center">2</td>
+            <td class="text-center">lic</td>
+            <td class="text-center">☐</td>
         </tr>
         
     </tbody>
 </table>
 
-<div class="row">
-    <div class="col-6">
-        
-        <div class="info-box">
-            <strong>Notes:</strong><br>
-            Project completed per contract CT-2025-089 specifications.
+
+<div class="info-box mt-4">
+    <strong>Notes:</strong><br>
+    Urgent delivery. Contact John Smith (ext. 234) for access.
+</div>
+
+
+<div class="contract-signature">
+    <div class="signature-block">
+        <p class="text-muted">Delivered by</p>
+        <div class="signature-line">
+            Name: _____________________<br>
+            ID: _____________________
         </div>
-        
     </div>
-    <div class="col-6">
-        <table class="table-compact">
-            <tr>
-                <td class="text-right"><strong>Subtotal:</strong></td>
-                <td class="text-right" style="width: 100px">9.200,00 €</td>
-            </tr>
-            
-            <tr>
-                <td class="text-right">VAT 21.0%:</td>
-                <td class="text-right">1.932,00 €</td>
-            </tr>
-            
-            <tr class="border-top">
-                <td class="text-right"><strong>TOTAL:</strong></td>
-                <td class="text-right font-bold" style="font-size: 12pt">11.132,00 €</td>
-            </tr>
-        </table>
+    <div class="signature-block">
+        <p class="text-muted">Received by</p>
+        <div class="signature-line">
+            Name: _____________________<br>
+            ID: _____________________
+        </div>
     </div>
 </div>
 
-
-<div class="card mt-4">
-    <div class="card-header">Payment Information</div>
-    <p><strong>Method:</strong> Wire Transfer</p>
-    
-    <p><strong>IBAN:</strong> <span class="font-mono">US12 3456 7890 1234 5678 9012</span></p>
-    
-</div>
-
+<p class="text-center text-muted mt-4" style="font-size: 8pt;">
+    This delivery note is not valid as an invoice. 
+    The corresponding invoice will be issued separately.
+</p>
 
 
         </main>
         
         
         <footer class="report-footer">
-            <span>
-Invoice INV-2026-001 - Generated on 2026-01-22
-</span>
+            <span>Generado el 24/01/2026 18:55</span>
             <span>ReportPy</span>
         </footer>
         

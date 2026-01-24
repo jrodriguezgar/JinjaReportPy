@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Test</title>
+    <style>
+
+/* Reset & Base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --primary-color: #2563eb;
+    --text-color: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --bg-light: #f8fafc;
+    --page-width: 210mm;
+    --page-height: 297mm;
+    --page-margin: 15mm;
+}
+
+html { font-size: 10pt; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: var(--text-color);
+    background: #fff;
+}
+
+/* Page Structure */
+.page {
+    width: var(--page-width);
+    min-height: var(--page-height);
+    padding: var(--page-margin);
+    margin: 0 auto 20px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    page-break-after: always;
+}
+.page:last-child { page-break-after: auto; }
+.page-content { min-height: calc(var(--page-height) - 2 * var(--page-margin) - 40mm); }
+
+/* Section */
+.section { margin-bottom: 20px; }
+
+/* Typography */
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.25; margin-bottom: 0.5em; }
+h1 { font-size: 20pt; }
+h2 { font-size: 16pt; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.25em; }
+h3 { font-size: 13pt; }
+p { margin-bottom: 1em; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+th { background: var(--bg-light); font-weight: 600; }
+tbody tr:hover { background: #f8fafc; }
+.table-bordered th, .table-bordered td { border: 1px solid var(--border-color); }
+
+/* Cards */
+.card { border: 1px solid var(--border-color); border-radius: 4px; padding: 15px; margin-bottom: 15px; }
+.card-header { font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-color); }
+
+/* Grid Layout */
+.row { display: flex; flex-wrap: wrap; margin: 0 -10px; }
+.col-6 { flex: 0 0 50%; max-width: 50%; padding: 0 10px; }
+.col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 10px; }
+
+/* Utilities */
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.font-bold { font-weight: 700; }
+.font-mono { font-family: 'Consolas', 'Monaco', monospace; }
+.mb-1 { margin-bottom: 5px; }
+.mb-2 { margin-bottom: 10px; }
+.mb-3 { margin-bottom: 15px; }
+.mb-4 { margin-bottom: 20px; }
+.mt-4 { margin-top: 20px; }
+.border-top { border-top: 2px solid var(--border-color); }
+
+/* Info boxes */
+.info-box { background: var(--bg-light); padding: 10px; border-radius: 4px; font-size: 9pt; }
+
+/* Print */
+@media print {
+    body { background: none; }
+    .page { width: 100%; min-height: auto; padding: 0; margin: 0; box-shadow: none; }
+    .no-print { display: none !important; }
+}
+@page { size: A4 portrait; margin: 15mm; }
+
+/* Page break utilities */
+.page-break { page-break-after: always; }
+.avoid-break { page-break-inside: avoid; }
+
+
+/* Document CSS */
+/* Page 1 CSS */
+/* Section: test2 */
+/* ===========================================
+   Section - Formato Default
+   =========================================== */
+
+.section {
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 14pt;
+    font-weight: 600;
+    color: var(--primary-color, #2563eb);
+    border-bottom: 2px solid var(--primary-color, #2563eb);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.section-body {
+    font-size: 10pt;
+    line-height: 1.6;
+}
+
+.section-body p {
+    margin-bottom: 10px;
+}
+
+.section-body ul, .section-body ol {
+    margin: 10px 0;
+    padding-left: 25px;
+}
+
+.section-body li {
+    margin-bottom: 5px;
+}
+
+    </style>
+</head>
+<body>
+<div class="page">
+<div class="page-content">
+<div class="section section-test2">
+<h1>Default Output</h1>
+</div>
+</div>
+</div>
+</body>
+</html>
