@@ -1,1 +1,1 @@
-"""Tests para el paquete ninjareportpy."""
+"""Tests para el paquete jinjareportpy."""

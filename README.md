@@ -1,4 +1,4 @@
-# 🥷 NinjaReportPy
+# 📄 JinjaReportPy
 
 > Programmatic document and report generator with dynamic sections and PDF export.
 
@@ -12,27 +12,23 @@
 - 🎨 **Predefined Formats**: `default`, `corporate`, `minimal`
 - 📧 **Email-Ready HTML**: Inline styles for email compatibility
 - 📤 **PDF Export**: Via WeasyPrint (optional)
-- �️ **Embedded Viewer**: Display reports in WinFormPy desktop apps (optional)
-- 🀽� **Custom Templates**: Add templates via directory or inline code
+- 🎨 **Custom Templates**: Add templates via directory or inline code
 - 🐼 **Pandas Support**: Direct DataFrame integration (optional)
 
 ## 📦 Installation
 
 ```bash
 # Basic installation
-pip install ninjareportpy
+pip install jinjareportpy
 
 # With PDF support
-pip install ninjareportpy[pdf]
+pip install jinjareportpy[pdf]
 
 # With Pandas support
-pip install ninjareportpy[pandas]
-
-# With GUI/Embedded browser support
-pip install ninjareportpy[gui]
+pip install jinjareportpy[pandas]
 
 # Full installation
-pip install ninjareportpy[all]
+pip install jinjareportpy[all]
 ```
 
 ## 🏗️ Architecture
@@ -62,7 +58,7 @@ The library provides convenient factory functions for common document types:
 Creates a professional invoice with automatic calculations (subtotals, taxes, totals).
 
 ```python
-from ninjareportpy import create_invoice
+from jinjareportpy import create_invoice
 
 invoice = create_invoice(
     # Required parameters
@@ -126,7 +122,7 @@ invoice.preview()  # Open in browser
 Creates a quote with validity period and optional discount.
 
 ```python
-from ninjareportpy import create_quote
+from jinjareportpy import create_quote
 
 quote = create_quote(
     # Required parameters
@@ -166,7 +162,7 @@ quote.export_pdf("quote.pdf")
 Creates a receipt for payment confirmation.
 
 ```python
-from ninjareportpy import create_receipt
+from jinjareportpy import create_receipt
 
 receipt = create_receipt(
     # Required parameters
@@ -202,7 +198,7 @@ receipt.export_pdf("receipt.pdf")
 Creates a delivery/shipping note for goods dispatch.
 
 ```python
-from ninjareportpy import create_delivery_note
+from jinjareportpy import create_delivery_note
 
 delivery = create_delivery_note(
     # Required parameters
@@ -249,7 +245,7 @@ delivery.export_html("delivery_note.html")
 Create any document type with custom templates:
 
 ```python
-from ninjareportpy import Document
+from jinjareportpy import Document
 
 # Option 1: Inline template
 doc = Document(
@@ -300,7 +296,7 @@ You can add custom templates in two ways:
 ### Simplified API (Recommended)
 
 ```python
-from ninjareportpy import ReportBuilder
+from jinjareportpy import ReportBuilder
 
 builder = (
     ReportBuilder("Weekly Sales Report", format_name="corporate")
@@ -353,7 +349,7 @@ body_only = builder.to_clipboard_html()  # Returns body HTML as string (for emai
 For complete control over multi-page reports:
 
 ```python
-from ninjareportpy import (
+from jinjareportpy import (
     Report, 
     Section, 
     TableSection, 
@@ -489,7 +485,7 @@ Section(
 Three predefined formats are available:
 
 ```python
-from ninjareportpy import set_default_format, get_available_formats
+from jinjareportpy import set_default_format, get_available_formats
 
 print(get_available_formats())  # ['corporate', 'default', 'minimal']
 
@@ -512,12 +508,12 @@ builder = ReportBuilder("Report", format_name="minimal")
 
 ### Output Directory Configuration
 
-By default, all generated files are saved to the `output/` subdirectory inside the `ninjareportpy` package directory, making it portable regardless of the current working directory. You can customize this behavior:
+By default, all generated files are saved to the `output/` subdirectory inside the `JinjaReportPy` package directory, making it portable regardless of the current working directory. You can customize this behavior:
 
 #### Using ReportConfig
 
 ```python
-from ninjareportpy import Report, Document, ReportConfig
+from jinjareportpy import Report, Document, ReportConfig
 from pathlib import Path
 
 # Create custom configuration
@@ -558,7 +554,7 @@ invoice.export_pdf("/reports/invoice.pdf")
 invoice.export_html(Path("./reports"), filename="invoice_jan.html")
 report.export_pdf(Path("./archives"), filename="report_q4.pdf")
 
-# Using default config.output_dir (ninjareportpy/output)
+# Using default config.output_dir (jinjareportpy/output)
 invoice.export_html()  # Uses config.output_dir / "document.html"
 ```
 
@@ -579,7 +575,7 @@ invoice.export_html()  # Uses config.output_dir / "document.html"
 **Example:**
 
 ```python
-from ninjareportpy import ReportConfig, PageSize, Orientation
+from jinjareportpy import ReportConfig, PageSize, Orientation
 from pathlib import Path
 
 config = ReportConfig(
@@ -604,7 +600,7 @@ Customize documents and reports with your corporate identity:
 For documents (invoices, quotes, etc.), include the logo in the company data:
 
 ```python
-from ninjareportpy import create_invoice
+from jinjareportpy import create_invoice
 
 invoice = create_invoice(
     invoice_number="INV-2026-001",
@@ -620,7 +616,7 @@ invoice = create_invoice(
 For reports, add the logo in the header:
 
 ```python
-from ninjareportpy import ReportBuilder
+from jinjareportpy import ReportBuilder
 
 builder = ReportBuilder("Annual Report")
 builder.header(
@@ -634,7 +630,7 @@ builder.header(
 Override CSS variables to change colors throughout the document:
 
 ```python
-from ninjareportpy import create_invoice, ReportBuilder
+from jinjareportpy import create_invoice, ReportBuilder
 
 # Custom CSS to override default colors
 corporate_css = """
@@ -685,7 +681,7 @@ builder.export_pdf("branded_report.pdf")
 #### Complete Branding Example
 
 ```python
-from ninjareportpy import ReportBuilder, KPISection, TableSection
+from jinjareportpy import ReportBuilder, KPISection, TableSection
 
 # Define brand colors
 brand_css = """
@@ -739,7 +735,7 @@ Available filters in templates:
 
 ```python
 import pandas as pd
-from ninjareportpy import ReportBuilder
+from jinjareportpy import ReportBuilder
 
 df = pd.DataFrame({
     "Product": ["A", "B", "C"],
@@ -751,80 +747,6 @@ builder.add_table_from_dataframe("sales", df, title="Product Sales")
 builder.export_pdf("report.pdf")
 ```
 
-### Embedded Browser (WinFormPy Integration)
-
-For desktop applications, you can embed reports in a WinFormPy window:
-
-```bash
-# Install with GUI support
-pip install ninjareportpy[gui]
-```
-
-```python
-from ninjareportpy import Report, check_winformpy_available
-
-# Check if WinFormPy is available
-if check_winformpy_available():
-    from winformpy import Application
-  
-    report = Report(title="Sales Report")
-    page = report.add_page()
-    page.set_header(title="Q4 Report")
-    page.add_section(TextSection(name="intro", content="<p>Summary...</p>"))
-  
-    # Create a standalone viewer form
-    viewer = report.create_viewer_form(
-        title="Report Viewer",
-        width=900,
-        height=700,
-        with_navigation=True,  # Include navigation bar
-    )
-    Application.Run(viewer)
-```
-
-Or embed in your own forms:
-
-```python
-from winformpy import Form, DockStyle, Application
-from ninjareportpy import create_invoice
-
-class InvoiceViewer(Form):
-    def __init__(self):
-        super().__init__()
-        self.Text = "Invoice Viewer"
-        self.Width = 800
-        self.Height = 600
-      
-        invoice = create_invoice(
-            invoice_number="INV-001",
-            company={"name": "My Company"},
-            client={"name": "Client"},
-            items=[{"description": "Service", "quantity": 1, "unit_price": 100}],
-        )
-      
-        # Embed in this form
-        invoice.preview_embedded(self, {'Dock': DockStyle.Fill})
-
-viewer = InvoiceViewer()
-Application.Run(viewer)
-```
-
-Available viewer functions:
-
-| Function                                                           | Description                                 |
-| ------------------------------------------------------------------ | ------------------------------------------- |
-| `check_winformpy_available()`                                    | Check if WinFormPy is installed             |
-| `create_embedded_browser(parent, props)`                         | Create basic WebBrowser control             |
-| `create_browser_panel(parent, props)`                            | Create WebBrowserPanel with navigation bar  |
-| `open_in_embedded_browser(parent, html, props, with_navigation)` | Create browser and display HTML in one call |
-
-**BaseDocument methods:**
-
-| Method                                                        | Description                          |
-| ------------------------------------------------------------- | ------------------------------------ |
-| `preview_embedded(parent, props, with_navigation)`          | Display document in embedded browser |
-| `create_viewer_form(title, width, height, with_navigation)` | Create standalone viewer Form        |
-
 ---
 
 ## 🧪 Testing
@@ -834,7 +756,7 @@ Available viewer functions:
 uv run pytest
 
 # With coverage
-uv run pytest --cov=ninjareportpy
+uv run pytest --cov=JinjaReportPy
 
 # Specific test file
 uv run pytest tests/test_report.py -v
@@ -856,12 +778,12 @@ PYTHONPATH=. python examples/demo.py
 The demo will:
 - ✅ Generate a multi-page report with all section types
 - ✅ Create sample invoice, quote, receipt, and delivery note
-- ✅ Save all outputs to `ninjareportpy/output/` directory
+- ✅ Save all outputs to `jinjareportpy/output/` directory
 - ✅ Open the invoice in your default browser
 
 **Expected output:**
 ```
-🥷 NinjaReportPy - Complete Demo
+🥷 JinjaReportPy - Complete Demo
 ==================================================
 📁 Available formats: corporate, default, minimal
 
@@ -869,13 +791,13 @@ The demo will:
 📊 Page 2: Full Control API...
 📊 Page 3: Custom Sections...
 📊 Page 4: Corporate Format...
-   ✓ Report: C:\...\ninjareportpy\output\demo_report.html
+   ✓ Report: C:\...\JinjaReportPy\output\demo_report.html
 
 📄 Generating Documents...
-   ✓ Invoice: C:\...\ninjareportpy\output\invoice.html
-   ✓ Quote: C:\...\ninjareportpy\output\quote.html
-   ✓ Receipt: C:\...\ninjareportpy\output\receipt.html
-   ✓ Delivery Note: C:\...\ninjareportpy\output\delivery_note.html
+   ✓ Invoice: C:\...\JinjaReportPy\output\invoice.html
+   ✓ Quote: C:\...\JinjaReportPy\output\quote.html
+   ✓ Receipt: C:\...\JinjaReportPy\output\receipt.html
+   ✓ Delivery Note: C:\...\JinjaReportPy\output\delivery_note.html
    ✓ Quote: output\quote.html
    ✓ Receipt: output\receipt.html
    ✓ Delivery Note: output\delivery_note.html
@@ -889,8 +811,8 @@ The demo will:
 ## 📁 Project Structure
 
 ```
-NinjaReportPy/                    # Project root
-├── ninjareportpy/                # 📦 Main package (portable, self-contained)
+jinjareportpy/                    # Project root
+├── jinjareportpy/                # 📦 Main package (portable, self-contained)
 │   ├── __init__.py            # Public API exports
 │   ├── __main__.py            # CLI entry point
 │   ├── base.py                # BaseDocument abstract class
@@ -936,7 +858,7 @@ NinjaReportPy/                    # Project root
 
 ### Directory Organization
 
-**Inside `ninjareportpy/` package** (📦 Portable, self-contained):
+**Inside `jinjareportpy/` package** (📦 Portable, self-contained):
 - **Source code**: All `.py` modules
 - **templates/**: Built-in HTML templates for documents
 - **formats/**: Predefined styling formats (default, corporate, minimal)

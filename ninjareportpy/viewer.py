@@ -45,7 +45,7 @@ def open_in_browser(
 
     # If content provided, save to temp file
     if html_content is not None:
-        temp_dir = Path(tempfile.gettempdir()) / "ninjareportpy"
+        temp_dir = Path(tempfile.gettempdir()) / "jinjareportpy"
         temp_dir.mkdir(exist_ok=True)
         html_path = temp_dir / f"report_{os.getpid()}.html"
         Path(html_path).write_text(html_content, encoding="utf-8")
