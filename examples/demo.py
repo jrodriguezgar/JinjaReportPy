@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🥷 NinjaReportPy - Complete Demo
+📄 JinjaReportPy - Complete Demo
 
 Demonstrates all project features:
 - Documents: Invoices, Quotes, Receipts, Delivery Notes
@@ -15,7 +15,7 @@ To run:
 from datetime import datetime
 from pathlib import Path
 
-from ninjareportpy import (
+from jinjareportpy import (
     # Base
     BaseDocument,
     # Documents
@@ -39,22 +39,22 @@ from ninjareportpy import (
 def main():
     """Generate a complete demo showing all capabilities."""
     
-    print("🥷 NinjaReportPy - Complete Demo")
+    print("📄 JinjaReportPy - Complete Demo")
     print("=" * 50)
     
     formats = get_available_formats()
     print(f"📁 Available formats: {', '.join(formats)}")
     
-    # Use default portable output directory (ninjareportpy/output)
+    # Use default portable output directory (jinjareportpy/output)
     # No need to create it manually - ReportConfig does it automatically
-    from ninjareportpy.config import ReportConfig
+    from jinjareportpy.config import ReportConfig
     output_dir = ReportConfig().output_dir
     
     # =========================================================================
     # CREATE MULTI-PAGE REPORT
     # =========================================================================
     set_default_format("corporate")
-    report = Report(title="🥷 NinjaReportPy - Complete Demo")
+    report = Report(title="📄 JinjaReportPy - Complete Demo")
     
     # =========================================================================
     # PAGE 1: Simplified API (ReportBuilder)
@@ -68,7 +68,7 @@ def main():
         date=datetime.now().strftime("%Y-%m-%d"),
     )
     page1.set_footer(
-        left_text="NinjaReportPy Demo",
+        left_text="JinjaReportPy Demo",
         center_text="Confidential",
         right_text="Page 1 of 4",
     )
@@ -125,7 +125,7 @@ builder.export_html("output.html")</code></pre>
         subtitle="Report, Page & Sections",
     )
     page2.set_footer(
-        left_text="NinjaReportPy Demo",
+        left_text="JinjaReportPy Demo",
         right_text="Page 2 of 4",
     )
     
@@ -181,7 +181,7 @@ builder.export_html("output.html")</code></pre>
         subtitle="Custom Templates and CSS",
     )
     page3.set_footer(
-        left_text="NinjaReportPy Demo",
+        left_text="JinjaReportPy Demo",
         right_text="Page 3 of 4",
     )
     

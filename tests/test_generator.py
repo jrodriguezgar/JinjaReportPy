@@ -4,8 +4,8 @@ import pytest
 from pathlib import Path
 import tempfile
 
-from ninjareportpy import ReportGenerator, ReportConfig, PageSize, Orientation
-from ninjareportpy.exceptions import TemplateNotFoundError, ExportError
+from jinjareportpy import ReportGenerator, ReportConfig, PageSize, Orientation
+from jinjareportpy.exceptions import TemplateNotFoundError, ExportError
 
 
 class TestReportConfig:

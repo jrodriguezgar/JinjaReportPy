@@ -1,12 +1,12 @@
 [project]
-name = "ninjareportpy"
+name = "jinjareportpy"
 version = "0.1.0"
-description = "🥷 NinjaReportPy - Generador programático de informes multipágina con Jinja2 y exportación PDF"
+description = "📄 JinjaReportPy - Generador programático de informes multipágina con Jinja2 y exportación PDF"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.14"
 license = {text = "MIT"}
 authors = [
-    {name = "NinjaReportPy Team"}
+    {name = "JinjaReportPy Team"}
 ]
 keywords = ["reports", "pdf", "html", "jinja2", "templates", "documents"]
 classifiers = [
@@ -32,13 +32,11 @@ pandas = [
     "pandas>=2.0.0",
 ]
 gui = [
-    "winformpy>=0.1.0",
     "tkinterweb>=3.0.0",
 ]
 all = [
     "weasyprint>=60.0",
     "pandas>=2.0.0",
-    "winformpy>=0.1.0",
     "tkinterweb>=3.0.0",
 ]
 dev = [
@@ -49,14 +47,14 @@ dev = [
 ]
 
 [project.scripts]
-ninjareportpy = "ninjareportpy.__main__:main"
+jinjareportpy = "jinjareportpy.__main__:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["ninjareportpy"]
+packages = ["jinjareportpy"]
 
 [tool.ruff]
 line-length = 100

@@ -57,17 +57,11 @@ from .config import ReportConfig, PageSize, Orientation
 from .assets import AssetManager
 from .filters import register_default_filters
 
-# Viewer utilities (WinFormPy integration)
+# Viewer utilities
 from .viewer import (
     open_in_browser,
     open_pdf_viewer,
     get_available_browsers,
-    check_winformpy_available,
-    create_embedded_browser,
-    create_browser_panel,
-    display_html_in_browser,
-    display_html_in_panel,
-    open_in_embedded_browser,
 )
 
 # Exceptions
@@ -121,16 +115,10 @@ __all__ = [
     # Utilities
     "AssetManager",
     "register_default_filters",
-    # Viewer utilities (WinFormPy integration)
+    # Viewer utilities
     "open_in_browser",
     "open_pdf_viewer",
     "get_available_browsers",
-    "check_winformpy_available",
-    "create_embedded_browser",
-    "create_browser_panel",
-    "display_html_in_browser",
-    "display_html_in_panel",
-    "open_in_embedded_browser",
     # Legacy
     "ReportGenerator",
     # Exceptions

@@ -6,8 +6,8 @@ Demonstrates how to customize the output directory for generated files.
 """
 
 from pathlib import Path
-import ninjareportpy as nr
-from ninjareportpy import Report, ReportConfig, create_invoice, PageSize, Orientation
+import jinjareportpy as nr
+from jinjareportpy import Report, ReportConfig, create_invoice, PageSize, Orientation
 
 def test_custom_output_dir():
     """Test custom output directory configuration."""
