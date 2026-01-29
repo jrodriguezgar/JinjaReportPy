@@ -8,3 +8,14 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Excluir directorios de proyecto, tests y documentación
+**/secrets.*
+.github/
+.vscode/
+project_structure.txt
+pyproject.toml
+tests/
+docs/
+notebooks/
+ToDo/
