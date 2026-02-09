@@ -97,8 +97,9 @@ class ReportGenerator:
         # Prepare template loaders
         template_paths = [str(p) for p in self.config.template_dirs if p.exists()]
 
-        # Add built-in templates directory
-        builtin_templates = Path(__file__).parent / "templates"
+        # Add built-in templates directory (from centralized config)
+        from jinjareportpy.config import get_templates_dir
+        builtin_templates = get_templates_dir()
         if builtin_templates.exists():
             template_paths.append(str(builtin_templates))
 

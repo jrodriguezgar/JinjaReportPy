@@ -329,3 +329,46 @@ invoice.export_pdf(Path("./archives"), filename="invoice.pdf")
 - `locale` (str): Locale for formatting (es_ES, en_US, etc.)
 
 The output directory is **auto-created** if it doesn't exist.
+
+### Report Viewer (Browser Integration)
+
+The `ReportViewer` class manages browser windows intelligently:
+- First report opens in a **new browser window**
+- Subsequent reports open as **new tabs** in the same window
+
+```python
+from jinjareportpy import (
+    open_in_browser,
+    open_in_new_window,
+    open_in_new_tab,
+    reset_viewer,
+    ReportViewer,
+)
+
+# Automatic behavior (recommended)
+open_in_browser(html_path="report1.html")  # Opens new window
+open_in_browser(html_path="report2.html")  # Opens new tab
+open_in_browser(html_path="report3.html")  # Opens new tab
+
+# Reset to start fresh (next open = new window)
+reset_viewer()
+open_in_browser(html_path="report4.html")  # Opens new window again
+
+# Force specific behavior
+open_in_new_window("report.html")  # Always new window
+open_in_new_tab("report.html")     # Always new tab
+
+# Using ReportViewer directly
+viewer = ReportViewer()
+viewer.open("report1.html")  # New window
+viewer.open("report2.html")  # New tab
+viewer.open("report3.html", force_new_window=True)  # Force new window
+viewer.reset()  # Next open = new window
+```
+
+**Available Functions:**
+- `open_in_browser(html_path)` - Smart open (window first, then tabs)
+- `open_in_new_window(html_path)` - Always opens new window
+- `open_in_new_tab(html_path)` - Always opens new tab
+- `reset_viewer()` - Reset state (next open = new window)
+- `get_viewer()` - Get the shared ReportViewer instance
