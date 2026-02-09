@@ -17,13 +17,14 @@ jinjareportpy/                    # Project root
 ├── jinjareportpy/                # 📦 Main package (portable, self-contained)
 │   ├── __init__.py            # Public API exports
 │   ├── __main__.py            # CLI entry point
+│   ├── cli.py                 # Command line interface
+│   ├── config.py              # Configuration management
 │   ├── base.py                # BaseDocument abstract class
 │   ├── document.py            # Document class + factory functions
 │   ├── report.py              # Report class (multi-page)
 │   ├── page.py                # Page class
 │   ├── sections.py            # Section classes
 │   ├── builder.py             # ReportBuilder API
-│   ├── config.py              # Configuration classes
 │   ├── assets.py              # Asset management
 │   ├── filters.py             # Jinja2 filters
 │   ├── pdf.py                 # PDF export
@@ -70,6 +71,85 @@ jinjareportpy/                    # Project root
 - `jinja2` - Template engine (required)
 - `weasyprint` - PDF export (optional: `[pdf]`)
 - `pandas` - DataFrame support (optional: `[pandas]`)
+
+## Command Line Interface (CLI)
+
+JinjaReportPy provides a full CLI for managing configuration and generating documents:
+
+```bash
+# Show help
+python -m jinjareportpy --help
+
+# Configuration commands
+python -m jinjareportpy config show              # Show current configuration
+python -m jinjareportpy config show --json       # Output as JSON
+python -m jinjareportpy config set locale en_US  # Set locale
+python -m jinjareportpy config set output_dir ./reports  # Set output directory
+python -m jinjareportpy config reset             # Reset to defaults
+python -m jinjareportpy config init              # Create config file in current dir
+
+# Generate demo report
+python -m jinjareportpy demo                     # Default format
+python -m jinjareportpy demo --format corporate  # Corporate format
+python -m jinjareportpy demo --pdf --open        # Generate PDF and open in browser
+
+# List available formats and templates
+python -m jinjareportpy formats                  # List formats
+python -m jinjareportpy formats --details        # Show format files
+python -m jinjareportpy templates                # List templates
+
+# Generate documents
+python -m jinjareportpy invoice -n INV-001 --company "My Corp"
+python -m jinjareportpy quote -n QT-001 --client "Client Ltd" --pdf
+```
+
+**Available CLI Commands:**
+- `config` - View and manage configuration (show, set, reset, init)
+- `demo` - Generate a demo sales report
+- `formats` - List available report formats
+- `templates` - List available document templates
+- `invoice` - Generate an invoice
+- `quote` - Generate a quote
+
+### CLI and Config Integration
+
+The CLI (`cli.py`) and configuration (`config.py`) work together:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         CLI (cli.py)                        │
+│  python -m jinjareportpy config set output_dir ./reports    │
+└─────────────────────────┬───────────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    JinjaReportConfig                        │
+│  (centralized configuration in config.py)                   │
+│                                                             │
+│  Priority resolution:                                       │
+│  1. Environment variables  (JINJAREPORT_OUTPUT_DIR)         │
+│  2. Programmatic           (set_output_dir("./reports"))    │
+│  3. Config file            (jinjareportpy.toml)             │
+│  4. Default values         (jinjareportpy/output/)          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**CLI Command → Config Function Mapping:**
+
+| CLI Command | Config Function |
+|-------------|-----------------|
+| `config show` | `JinjaReportConfig.get_all_config()` |
+| `config set output_dir ./x` | `JinjaReportConfig.set_output_dir()` |
+| `config set locale en_US` | `JinjaReportConfig.set_locale()` |
+| `config reset` | `JinjaReportConfig.reset()` |
+| `config init` | Creates TOML file that `config.py` reads |
+
+**Persistence Options:**
+- **Session only**: `python -m jinjareportpy config set locale en_US` (not persisted)
+- **Config file**: `python -m jinjareportpy config init` → edit `jinjareportpy.toml`
+- **Environment**: `export JINJAREPORT_LOCALE="en_US"` (always active)
+
+The CLI is the **user interface**, while `config.py` is the **configuration engine** that all modules use internally (`document.py`, `report.py`, `generator.py`, `formats/__init__.py`).
 
 ## Running the Project
 
@@ -329,6 +409,83 @@ invoice.export_pdf(Path("./archives"), filename="invoice.pdf")
 - `locale` (str): Locale for formatting (es_ES, en_US, etc.)
 
 The output directory is **auto-created** if it doesn't exist.
+
+### Centralized Configuration (JinjaReportConfig)
+
+The `JinjaReportConfig` class provides centralized configuration with multi-source resolution:
+
+**Priority (highest to lowest):**
+1. Environment variables
+2. Programmatic: `JinjaReportConfig.set_*()` methods
+3. Config file: `jinjareportpy.toml`
+4. Default values
+
+```python
+from jinjareportpy import (
+    JinjaReportConfig,
+    get_templates_dir, set_templates_dir,
+    get_formats_dir, set_formats_dir,
+    get_output_dir, set_output_dir,
+    get_assets_dir, set_assets_dir,
+    get_locale, set_locale,
+    get_page_size, set_page_size,
+    get_orientation, set_orientation,
+)
+
+# Option 1: Programmatic configuration
+set_templates_dir("./my_templates")
+set_output_dir("./reports")
+set_locale("en_US")
+set_page_size("LETTER")
+set_orientation("landscape")
+
+# Option 2: Environment variables
+import os
+os.environ["JINJAREPORT_TEMPLATES_DIR"] = "/path/to/templates"
+os.environ["JINJAREPORT_OUTPUT_DIR"] = "/path/to/output"
+os.environ["JINJAREPORT_LOCALE"] = "en_US"
+
+# Option 3: Config file (jinjareportpy.toml)
+JinjaReportConfig.load_from_file("./jinjareportpy.toml")
+
+# Get all current configuration
+config = JinjaReportConfig.get_all_config()
+
+# Reset to defaults
+JinjaReportConfig.reset()
+```
+
+**Environment Variables:**
+- `JINJAREPORT_TEMPLATES_DIR` - Path to templates directory
+- `JINJAREPORT_FORMATS_DIR` - Path to formats directory
+- `JINJAREPORT_OUTPUT_DIR` - Path to output directory
+- `JINJAREPORT_ASSETS_DIR` - Path to assets directory
+- `JINJAREPORT_CONFIG_FILE` - Path to TOML config file
+- `JINJAREPORT_DEFAULT_FORMAT` - Default format (default, corporate, minimal)
+- `JINJAREPORT_PAGE_SIZE` - Page size (A4, A3, LETTER, LEGAL)
+- `JINJAREPORT_ORIENTATION` - Orientation (portrait, landscape)
+- `JINJAREPORT_LOCALE` - Locale (es_ES, en_US, etc.)
+- `JINJAREPORT_PDF_ZOOM` - PDF zoom level (1.0)
+- `JINJAREPORT_PDF_OPTIMIZE_IMAGES` - Optimize images (true/false)
+
+**Config File (jinjareportpy.toml):**
+```toml
+[paths]
+templates_dir = "./my_templates"
+formats_dir = "./my_formats"
+output_dir = "./reports"
+assets_dir = "./assets"
+
+[report]
+default_format = "corporate"
+page_size = "A4"
+orientation = "portrait"
+locale = "es_ES"
+
+[pdf]
+zoom = 1.0
+optimize_images = true
+```
 
 ### Report Viewer (Browser Integration)
 

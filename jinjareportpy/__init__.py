@@ -62,6 +62,14 @@ from .config import (
     set_formats_dir,
     get_output_dir,
     set_output_dir,
+    get_assets_dir,
+    set_assets_dir,
+    get_locale,
+    set_locale,
+    get_page_size,
+    set_page_size,
+    get_orientation,
+    set_orientation,
 )
 
 # Utilities
@@ -87,6 +95,9 @@ from .exceptions import (
     AssetNotFoundError,
     ExportError,
 )
+
+# CLI
+from .cli import main as cli_main
 
 # Legacy - kept for compatibility
 from .generator import ReportGenerator

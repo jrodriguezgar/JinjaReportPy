@@ -1,26 +1,37 @@
 # JinjaReportPy Configuration File
 # ================================
-# Copy this file to your project root and customize as needed.
+# Copy this file to your project root as "jinjareportpy.toml" and customize.
 #
-# Priority resolution:
-#   1. Environment variables (highest)
+# Priority resolution (highest to lowest):
+#   1. Environment variables
 #   2. Programmatic: JinjaReportConfig.set_*()
 #   3. This config file
-#   4. Default values (lowest)
+#   4. Default values
 #
 # Environment variables:
-#   JINJAREPORT_TEMPLATES_DIR
-#   JINJAREPORT_FORMATS_DIR
-#   JINJAREPORT_OUTPUT_DIR
-#   JINJAREPORT_CONFIG_FILE
+#   JINJAREPORT_TEMPLATES_DIR   - Path to templates directory
+#   JINJAREPORT_FORMATS_DIR     - Path to formats directory
+#   JINJAREPORT_OUTPUT_DIR      - Path to output directory
+#   JINJAREPORT_ASSETS_DIR      - Path to assets directory
+#   JINJAREPORT_CONFIG_FILE     - Path to this config file
+#   JINJAREPORT_DEFAULT_FORMAT  - Default format (default, corporate, minimal)
+#   JINJAREPORT_PAGE_SIZE       - Page size (A4, A3, LETTER, LEGAL)
+#   JINJAREPORT_ORIENTATION     - Page orientation (portrait, landscape)
+#   JINJAREPORT_LOCALE          - Locale for formatting (es_ES, en_US, etc.)
+#   JINJAREPORT_PDF_ZOOM        - PDF zoom level (1.0)
+#   JINJAREPORT_PDF_OPTIMIZE_IMAGES - Optimize images in PDF (true/false)
 
 [paths]
+# All paths can be absolute or relative to project root
 # Uncomment and customize as needed:
 # templates_dir = "./my_templates"
 # formats_dir = "./my_formats"
 # output_dir = "./reports"
+# assets_dir = "./assets"
 
 [report]
+# Default format for new reports (default, corporate, minimal)
+default_format = "default"
 # Default page size: A4, A3, LETTER, LEGAL
 page_size = "A4"
 # Default orientation: portrait, landscape
@@ -30,5 +41,5 @@ locale = "es_ES"
 
 [pdf]
 # PDF generation options (requires weasyprint)
-# zoom = 1.0
-# optimize_images = true
+zoom = 1.0
+optimize_images = true
