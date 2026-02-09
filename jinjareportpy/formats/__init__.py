@@ -12,11 +12,18 @@ Los formatos disponibles son:
 - default: Formato profesional moderno (azul/gris)
 - corporate: Formato corporativo serio
 - minimal: Formato minimalista limpio
+
+The formats directory is configurable via:
+- Environment variable: JINJAREPORT_FORMATS_DIR
+- Programmatic: JinjaReportConfig.set_formats_dir()
+- Config file: jinjareportpy.toml [paths.formats_dir]
 """
 
 from pathlib import Path
 from functools import lru_cache
 from typing import TypedDict
+
+from jinjareportpy.config import get_formats_dir
 
 
 class FormatTemplates(TypedDict):
@@ -35,9 +42,6 @@ class FormatTemplates(TypedDict):
     text_css: str
 
 
-# Directorio base de formatos
-FORMATS_DIR = Path(__file__).parent
-
 # Formato activo por defecto
 _active_format: str = "default"
 
@@ -52,7 +56,8 @@ def set_default_format(format_name: str) -> None:
         ValueError: Si el formato no existe.
     """
     global _active_format
-    format_path = FORMATS_DIR / format_name
+    formats_dir = get_formats_dir()
+    format_path = formats_dir / format_name
     if not format_path.is_dir():
         available = get_available_formats()
         raise ValueError(
@@ -76,7 +81,8 @@ def get_available_formats() -> list[str]:
         Lista de nombres de formatos.
     """
     formats = []
-    for path in FORMATS_DIR.iterdir():
+    formats_dir = get_formats_dir()
+    for path in formats_dir.iterdir():
         if path.is_dir() and not path.name.startswith("_"):
             formats.append(path.name)
     return sorted(formats)
@@ -96,10 +102,11 @@ def get_format_templates(format_name: str | None = None) -> FormatTemplates:
         ValueError: Si el formato no existe.
     """
     name = format_name or _active_format
-    format_path = FORMATS_DIR / name
+    formats_dir = get_formats_dir()
+    format_path = formats_dir / name
     
     if not format_path.is_dir():
-        raise ValueError(f"Formato '{name}' no encontrado en {FORMATS_DIR}")
+        raise ValueError(f"Formato '{name}' no encontrado en {formats_dir}")
     
     def read_file(filename: str) -> str:
         """Lee un archivo del formato, devuelve string vacío si no existe."""

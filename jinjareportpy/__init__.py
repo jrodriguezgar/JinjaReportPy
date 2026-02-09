@@ -51,7 +51,18 @@ from .formats import (
 )
 
 # Configuration
-from .config import ReportConfig, PageSize, Orientation
+from .config import (
+    ReportConfig,
+    PageSize,
+    Orientation,
+    JinjaReportConfig,
+    get_templates_dir,
+    set_templates_dir,
+    get_formats_dir,
+    set_formats_dir,
+    get_output_dir,
+    set_output_dir,
+)
 
 # Utilities
 from .assets import AssetManager
@@ -59,7 +70,12 @@ from .filters import register_default_filters
 
 # Viewer utilities
 from .viewer import (
+    ReportViewer,
+    get_viewer,
+    reset_viewer,
     open_in_browser,
+    open_in_new_window,
+    open_in_new_tab,
     open_pdf_viewer,
     get_available_browsers,
 )
@@ -112,11 +128,23 @@ __all__ = [
     "ReportConfig",
     "PageSize",
     "Orientation",
+    "JinjaReportConfig",
+    "get_templates_dir",
+    "set_templates_dir",
+    "get_formats_dir",
+    "set_formats_dir",
+    "get_output_dir",
+    "set_output_dir",
     # Utilities
     "AssetManager",
     "register_default_filters",
     # Viewer utilities
+    "ReportViewer",
+    "get_viewer",
+    "reset_viewer",
     "open_in_browser",
+    "open_in_new_window",
+    "open_in_new_tab",
     "open_pdf_viewer",
     "get_available_browsers",
     # Legacy

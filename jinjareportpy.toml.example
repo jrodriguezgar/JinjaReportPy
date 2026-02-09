@@ -1,0 +1,34 @@
+# JinjaReportPy Configuration File
+# ================================
+# Copy this file to your project root and customize as needed.
+#
+# Priority resolution:
+#   1. Environment variables (highest)
+#   2. Programmatic: JinjaReportConfig.set_*()
+#   3. This config file
+#   4. Default values (lowest)
+#
+# Environment variables:
+#   JINJAREPORT_TEMPLATES_DIR
+#   JINJAREPORT_FORMATS_DIR
+#   JINJAREPORT_OUTPUT_DIR
+#   JINJAREPORT_CONFIG_FILE
+
+[paths]
+# Uncomment and customize as needed:
+# templates_dir = "./my_templates"
+# formats_dir = "./my_formats"
+# output_dir = "./reports"
+
+[report]
+# Default page size: A4, A3, LETTER, LEGAL
+page_size = "A4"
+# Default orientation: portrait, landscape
+orientation = "portrait"
+# Default locale for date/number formatting
+locale = "es_ES"
+
+[pdf]
+# PDF generation options (requires weasyprint)
+# zoom = 1.0
+# optimize_images = true
