@@ -104,10 +104,8 @@ class ReportGenerator:
             template_paths.append(str(builtin_templates))
 
         if not template_paths:
-            # Create a default templates directory
-            default_templates = Path.cwd() / "templates"
-            default_templates.mkdir(exist_ok=True)
-            template_paths.append(str(default_templates))
+            # Use centralized config templates as fallback
+            template_paths.append(str(builtin_templates))
 
         loader = FileSystemLoader(template_paths)
 

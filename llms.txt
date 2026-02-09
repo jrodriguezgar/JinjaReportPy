@@ -1,0 +1,331 @@
+# JinjaReportPy
+
+Programmatic document and report generator with dynamic sections, custom CSS, and PDF export using Jinja2.
+
+## Context
+
+JinjaReportPy is a Python library for generating professional multi-page reports and documents (invoices, quotes, receipts, delivery notes) with:
+- Dynamic sections using Jinja2 templates
+- Predefined formats (default, corporate, minimal)
+- Email-ready inline HTML
+- PDF export via WeasyPrint
+- Centralized configuration management
+
+## Tech Stack
+
+| Component | Technology | Version |
+|-----------|------------|---------|
+| Language | Python | 3.10+ |
+| Template Engine | Jinja2 | ≥3.1.0 |
+| PDF Export | WeasyPrint | ≥60.0 (optional) |
+| DataFrame Support | Pandas | ≥2.0.0 (optional) |
+| Build System | Hatchling | - |
+| Testing | pytest | ≥8.0.0 |
+| Linting | Ruff | ≥0.4.0 |
+| Type Checking | mypy | ≥1.0.0 |
+
+## Project Structure
+
+```
+jinjareportpy/                    # Project root
+├── jinjareportpy/                # 📦 Main package
+│   ├── __init__.py            # Public API exports
+│   ├── __main__.py            # Module entry point
+│   ├── cli.py                 # Command line interface
+│   ├── config.py              # Configuration management (JinjaReportConfig)
+│   ├── base.py                # BaseDocument abstract class
+│   ├── document.py            # Document class + factory functions
+│   ├── report.py              # Report class (multi-page)
+│   ├── page.py                # Page class
+│   ├── sections.py            # Section classes (Header, Footer, Table, KPI, Text)
+│   ├── builder.py             # ReportBuilder fluent API
+│   ├── assets.py              # Asset management (Base64 conversion)
+│   ├── filters.py             # Jinja2 custom filters
+│   ├── pdf.py                 # PDF export utilities
+│   ├── viewer.py              # Browser/PDF viewer integration
+│   ├── generator.py           # Legacy API (ReportGenerator)
+│   ├── exceptions.py          # Custom exceptions
+│   ├── templates/             # Built-in HTML templates
+│   │   ├── base.html, invoice.html, quote.html, receipt.html, delivery_note.html
+│   ├── formats/               # Predefined formats
+│   │   ├── default/, corporate/, minimal/
+│   └── output/                # Generated files (auto-created)
+├── examples/                  # Usage examples
+├── tests/                     # Unit tests
+├── pyproject.toml            # Project metadata
+└── README.md
+```
+
+## Configuration
+
+### Priority Resolution (highest to lowest)
+
+1. **Environment Variables** - `JINJAREPORT_*`
+2. **Programmatic** - `JinjaReportConfig.set_*()`
+3. **Config File** - `jinjareportpy.toml`
+4. **Default Values**
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `JINJAREPORT_TEMPLATES_DIR` | Templates directory | `./templates` |
+| `JINJAREPORT_FORMATS_DIR` | Formats directory | `./formats` |
+| `JINJAREPORT_OUTPUT_DIR` | Output directory | `./output` |
+| `JINJAREPORT_ASSETS_DIR` | Assets directory | `./assets` |
+| `JINJAREPORT_DEFAULT_FORMAT` | Default format | `default` |
+| `JINJAREPORT_PAGE_SIZE` | Page size (A4, A3, LETTER, LEGAL) | `A4` |
+| `JINJAREPORT_ORIENTATION` | Orientation (portrait, landscape) | `portrait` |
+| `JINJAREPORT_LOCALE` | Locale for formatting | `es_ES` |
+| `JINJAREPORT_PDF_ZOOM` | PDF zoom level | `1.0` |
+| `JINJAREPORT_CONFIG_FILE` | Path to TOML config file | - |
+
+### Config File (jinjareportpy.toml)
+
+```toml
+[paths]
+templates_dir = "./my_templates"
+formats_dir = "./my_formats"
+output_dir = "./reports"
+assets_dir = "./assets"
+
+[report]
+default_format = "corporate"
+page_size = "A4"
+orientation = "portrait"
+locale = "es_ES"
+
+[pdf]
+zoom = 1.0
+optimize_images = true
+```
+
+## CLI Interface
+
+```bash
+python -m jinjareportpy [command] [options]
+```
+
+| Command | Description |
+|---------|-------------|
+| `config show` | Show current configuration |
+| `config show --json` | Output config as JSON |
+| `config set <key> <value>` | Set configuration value |
+| `config reset` | Reset to defaults |
+| `config init` | Create jinjareportpy.toml |
+| `demo` | Generate demo report |
+| `demo --format corporate` | Demo with specific format |
+| `demo --pdf --open` | Generate PDF and open |
+| `formats` | List available formats |
+| `formats --details` | Show format files |
+| `templates` | List available templates |
+| `invoice -n <number>` | Generate invoice |
+| `quote -n <number>` | Generate quote |
+
+## Functions & Public API
+
+### Core Classes
+
+```python
+from jinjareportpy import Report, Document, Page, Section
+from jinjareportpy import TableSection, KPISection, TextSection, HeaderSection, FooterSection
+from jinjareportpy import ReportBuilder  # Fluent API
+```
+
+### Document Factory Functions
+
+```python
+from jinjareportpy import create_invoice, create_quote, create_receipt, create_delivery_note
+
+invoice = create_invoice(
+    invoice_number="INV-001",
+    company={"name": "Company", "tax_id": "123"},
+    client={"name": "Client"},
+    items=[{"description": "Service", "quantity": 1, "unit_price": 100}],
+)
+invoice.export_pdf("invoice.pdf")
+```
+
+### ReportBuilder (Fluent API)
+
+```python
+from jinjareportpy import ReportBuilder
+
+builder = (
+    ReportBuilder("Sales Report", format_name="corporate")
+    .header(title="Q4 Report", subtitle="2025")
+    .footer(left="Company", right="Page 1")
+    .add_kpis("metrics", [{"label": "Sales", "value": "€50K", "change": 15}])
+    .add_table("data", headers=["A", "B"], rows=[["1", "2"]])
+    .add_text("notes", "Additional notes")
+)
+builder.export_pdf("report.pdf")
+```
+
+### Configuration Functions
+
+```python
+from jinjareportpy import (
+    JinjaReportConfig,
+    set_output_dir, get_output_dir,
+    set_locale, get_locale,
+    set_page_size, set_orientation,
+    set_templates_dir, set_formats_dir,
+)
+
+set_output_dir("./reports")
+set_locale("en_US")
+config = JinjaReportConfig.get_all_config()
+JinjaReportConfig.reset()
+```
+
+### Format Management
+
+```python
+from jinjareportpy import set_default_format, get_default_format, get_available_formats
+
+print(get_available_formats())  # ['corporate', 'default', 'minimal']
+set_default_format("corporate")
+```
+
+### Viewer Utilities
+
+```python
+from jinjareportpy import open_in_browser, open_in_new_window, reset_viewer
+
+open_in_browser("report.html")  # Smart: first=window, next=tabs
+reset_viewer()  # Next open = new window
+```
+
+## Development Workflow
+
+```bash
+# Install dependencies
+uv sync
+
+# Install with optional features
+uv sync --extra pdf      # PDF support
+uv sync --extra pandas   # DataFrame support
+uv sync --extra all      # All features
+uv sync --extra dev      # Development tools
+
+# Run tests
+uv run pytest
+uv run pytest --cov=jinjareportpy
+
+# Type checking
+uv run mypy jinjareportpy
+
+# Linting
+uv run ruff check jinjareportpy
+uv run ruff format jinjareportpy
+
+# Run demo
+python -m jinjareportpy demo --format corporate
+
+# Generate document
+python -m jinjareportpy invoice -n INV-001
+```
+
+## Technical Rules & Conventions
+
+### Architecture
+
+- **BaseDocument (ABC)** → Parent class for Document and Report
+- **Document** → Template-based single documents (invoices, quotes)
+- **Report** → Multi-page reports with sections
+- **Section** → Modular content blocks with template + data + CSS
+
+### Coding Standards
+
+- Python 3.10+ with type hints
+- PEP 8 style (enforced by Ruff)
+- Dataclasses for configuration objects
+- Custom exceptions from `exceptions.py`
+- Factory pattern for document creation
+
+### Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Classes | PascalCase | `ReportBuilder`, `TableSection` |
+| Functions | snake_case | `create_invoice`, `set_output_dir` |
+| Constants | UPPER_CASE | `_DEFAULT_OUTPUT_DIR` |
+| Private | Leading underscore | `_templates_dir`, `_ensure_loaded()` |
+| Config getters/setters | `get_*/set_*` | `get_locale()`, `set_locale()` |
+
+### File Organization
+
+- Templates: `jinjareportpy/templates/*.html`
+- Formats: `jinjareportpy/formats/{name}/{component}.html|css`
+- Output: `jinjareportpy/output/` (auto-created, portable)
+
+## Key Endpoints/Files
+
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Public API exports |
+| `cli.py` | CLI command handlers |
+| `config.py` | `JinjaReportConfig` class, getters/setters |
+| `document.py` | `Document` class, factory functions |
+| `report.py` | `Report` class for multi-page reports |
+| `builder.py` | `ReportBuilder` fluent API |
+| `sections.py` | Section classes (Table, KPI, Text, Header, Footer) |
+| `base.py` | `BaseDocument` abstract base class |
+| `formats/__init__.py` | Format loading and management |
+| `templates/invoice.html` | Invoice template |
+| `templates/quote.html` | Quote template |
+
+## Class Hierarchy
+
+```
+BaseDocument (ABC)
+├── render() → str
+├── render_css() → str
+├── render_content() → str (abstract)
+├── export_html(path) → Path
+├── export_pdf(path) → Path
+└── preview() → None
+
+├── Document
+│   └── Template-based documents (invoice, quote, receipt, delivery_note)
+│
+└── Report
+    ├── add_page() → Page
+    ├── pages: list[Page]
+    └── global_css: str
+        │
+        └── Page
+            ├── set_header() / set_footer()
+            ├── add_section(Section)
+            └── sections: list[Section]
+                │
+                └── Section (and subclasses)
+                    ├── TableSection
+                    ├── KPISection
+                    ├── TextSection
+                    ├── HeaderSection
+                    └── FooterSection
+```
+
+## Quick Reference
+
+```python
+# Document (single page)
+from jinjareportpy import create_invoice
+invoice = create_invoice(invoice_number="INV-001", company={...}, client={...}, items=[...])
+invoice.export_pdf("invoice.pdf")
+
+# Report (multi-page)
+from jinjareportpy import ReportBuilder
+builder = ReportBuilder("Title").header(title="Header").add_table("t", headers=[], rows=[])
+builder.export_html("report.html")
+
+# Configuration
+from jinjareportpy import set_output_dir, set_locale
+set_output_dir("./reports")
+set_locale("en_US")
+
+# CLI
+# python -m jinjareportpy demo --format corporate --pdf --open
+```

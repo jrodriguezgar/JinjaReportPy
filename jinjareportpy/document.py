@@ -20,7 +20,7 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, BaseLoader
 
 from .base import BaseDocument
-from .config import ReportConfig
+from .config import ReportConfig, get_templates_dir
 from .filters import register_default_filters
 from .exceptions import TemplateNotFoundError
 
@@ -279,9 +279,9 @@ class Document(BaseDocument):
     data: dict[str, Any] = field(default_factory=dict)
     css: str = ""
     
-    # Template directories
+    # Template directories (uses centralized config)
     _templates_dir: Path = field(
-        default_factory=lambda: Path(__file__).parent / "templates",
+        default_factory=get_templates_dir,
         repr=False,
     )
     
