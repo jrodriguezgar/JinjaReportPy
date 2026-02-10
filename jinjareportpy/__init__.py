@@ -97,7 +97,27 @@ from .exceptions import (
 )
 
 # CLI
-from .cli import main as cli_main
+from .cli import (
+    main as cli_main,
+    Colors,
+    cprint,
+    print_success,
+    print_error,
+    print_warning,
+    print_info,
+    print_header,
+    print_table,
+    print_summary,
+    print_progress,
+    confirm_action,
+    # Reusable CLI base
+    CLIBase,
+    CLIConfig,
+    Subcommand,
+    OutputFormat,
+    LogLevel,
+    create_cli,
+)
 
 # Legacy - kept for compatibility
 from .generator import ReportGenerator
@@ -165,4 +185,23 @@ __all__ = [
     "TemplateNotFoundError",
     "AssetNotFoundError",
     "ExportError",
+    # CLI utilities
+    "Colors",
+    "cprint",
+    "print_success",
+    "print_error",
+    "print_warning",
+    "print_info",
+    "print_header",
+    "print_table",
+    "print_summary",
+    "print_progress",
+    "confirm_action",
+    # Reusable CLI base
+    "CLIBase",
+    "CLIConfig",
+    "Subcommand",
+    "OutputFormat",
+    "LogLevel",
+    "create_cli",
 ]
