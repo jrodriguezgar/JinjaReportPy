@@ -1,6 +1,6 @@
 [project]
 name = "jinjareportpy"
-version = "0.1.0"
+version = "0.2.0"
 description = "📄 JinjaReportPy - Generador programático de informes multipágina con Jinja2 y exportación PDF"
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
@@ -47,6 +47,13 @@ dev = [
     "mypy>=1.0.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/jrodriguezgar/JinjaReportPy"
+Repository = "https://github.com/jrodriguezgar/JinjaReportPy"
+Issues = "https://github.com/jrodriguezgar/JinjaReportPy/issues"
+Changelog = "https://github.com/jrodriguezgar/JinjaReportPy/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/jrodriguezgar/JinjaReportPy#readme"
+
 [project.scripts]
 jinjareportpy = "jinjareportpy.__main__:main"
 
@@ -56,6 +63,21 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["jinjareportpy"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"examples" = "jinjareportpy/examples"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "jinjareportpy/**",
+    "examples/**",
+    "LICENSE",
+    "README.md",
+    "pyproject.toml",
+]
+
+[tool.hatch.build.targets.sdist.force-include]
+"examples" = "examples"
 
 [tool.ruff]
 line-length = 100

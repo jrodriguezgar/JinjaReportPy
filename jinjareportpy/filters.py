@@ -1,47 +1,64 @@
-"""Filtros Jinja2 personalizados para JinjaReportPy."""
+"""Custom Jinja2 filters for JinjaReportPy."""
 
+import logging
+import math
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
 from jinja2 import Environment
+from markupsafe import Markup
+
+from .config import get_locale
+
+logger = logging.getLogger(__name__)
+
+# Locale-to-separator mapping for common locales
+_LOCALE_SEPARATORS: dict[str, tuple[str, str]] = {
+    "en": (",", "."),
+    "es": (".", ","),
+    "fr": ("\u202f", ","),
+    "de": (".", ","),
+    "it": (".", ","),
+    "pt": (".", ","),
+}
+
+
+def _get_locale_separators() -> tuple[str, str]:
+    """Return (thousands_sep, decimal_sep) based on configured locale."""
+    locale = get_locale()
+    lang = locale.split("_")[0] if locale else "es"
+    return _LOCALE_SEPARATORS.get(lang, (".", ","))
 
 
 def format_currency(
     value: float | Decimal | int | None,
     symbol: str = "€",
     decimal_places: int = 2,
-    thousands_sep: str = ".",
-    decimal_sep: str = ",",
+    thousands_sep: str | None = None,
+    decimal_sep: str | None = None,
     symbol_after: bool = True,
 ) -> str:
     """Format a number as currency.
+
+    Separator defaults are resolved from ``JinjaReportConfig.get_locale()``
+    when not provided explicitly.
 
     Args:
         value: Numeric value to format.
         symbol: Currency symbol.
         decimal_places: Number of decimal places.
-        thousands_sep: Thousands separator.
-        decimal_sep: Decimal separator.
+        thousands_sep: Thousands separator (locale default if None).
+        decimal_sep: Decimal separator (locale default if None).
         symbol_after: Place symbol after value (European style).
 
     Returns:
         Formatted currency string.
     """
-    if value is None:
-        return ""
+    formatted = format_number(value, decimal_places, thousands_sep, decimal_sep)
 
-    try:
-        num = float(value)
-    except (ValueError, TypeError):
-        return str(value)
-
-    # Format with proper separators
-    formatted = f"{num:,.{decimal_places}f}"
-    # Replace default separators with custom ones
-    formatted = formatted.replace(",", "TEMP")
-    formatted = formatted.replace(".", decimal_sep)
-    formatted = formatted.replace("TEMP", thousands_sep)
+    if not formatted or formatted == str(value):
+        return formatted
 
     if symbol_after:
         return f"{formatted} {symbol}"
@@ -70,14 +87,26 @@ def format_date(
         if input_format:
             value = datetime.strptime(value, input_format)
         else:
-            # Try common formats
-            for fmt in ["%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"]:
+            # Try common formats (including ISO with time)
+            for fmt in [
+                "%Y-%m-%dT%H:%M:%S",
+                "%Y-%m-%dT%H:%M",
+                "%Y-%m-%d",
+                "%d/%m/%Y",
+                "%d-%m-%Y",
+                "%Y/%m/%d",
+            ]:
                 try:
                     value = datetime.strptime(value, fmt)
                     break
                 except ValueError:
                     continue
             else:
+                logger.warning(
+                    "format_date: unable to parse date string %r, "
+                    "returning as-is",
+                    value,
+                )
                 return value  # Return original if parsing fails
 
     if isinstance(value, (datetime, date)):
@@ -105,16 +134,19 @@ def format_datetime(
 def format_number(
     value: float | int | None,
     decimal_places: int = 2,
-    thousands_sep: str = ".",
-    decimal_sep: str = ",",
+    thousands_sep: str | None = None,
+    decimal_sep: str | None = None,
 ) -> str:
     """Format a number with custom separators.
+
+    Separator defaults are resolved from ``JinjaReportConfig.get_locale()``
+    when not provided explicitly.
 
     Args:
         value: Numeric value to format.
         decimal_places: Number of decimal places.
-        thousands_sep: Thousands separator.
-        decimal_sep: Decimal separator.
+        thousands_sep: Thousands separator (locale default if None).
+        decimal_sep: Decimal separator (locale default if None).
 
     Returns:
         Formatted number string.
@@ -122,10 +154,20 @@ def format_number(
     if value is None:
         return ""
 
+    if thousands_sep is None or decimal_sep is None:
+        default_tsep, default_dsep = _get_locale_separators()
+        thousands_sep = thousands_sep if thousands_sep is not None else default_tsep
+        decimal_sep = decimal_sep if decimal_sep is not None else default_dsep
+
     try:
         num = float(value)
     except (ValueError, TypeError):
+        logger.warning("format_number: non-numeric value %r, returning as string", value)
         return str(value)
+
+    if not math.isfinite(num):
+        logger.warning("format_number: non-finite value %r, returning '0'", value)
+        num = 0.0
 
     formatted = f"{num:,.{decimal_places}f}"
     formatted = formatted.replace(",", "TEMP")
@@ -158,6 +200,7 @@ def format_percentage(
         if multiply:
             num *= 100
     except (ValueError, TypeError):
+        logger.warning("format_percentage: non-numeric value %r, returning as string", value)
         return str(value)
 
     return f"{num:.{decimal_places}f}%"
@@ -210,7 +253,7 @@ def nl2br(value: str | None) -> str:
     """
     if value is None:
         return ""
-    return str(value).replace("\n", "<br>\n")
+    return Markup(str(value).replace("\n", "<br>\n"))
 
 
 def default_if_none(value: Any, default: Any = "") -> Any:
@@ -264,6 +307,6 @@ def register_default_filters(env: Environment) -> None:
     }
 
     env.filters.update(filters)
-    
+
     # Register globals (functions available in templates)
     env.globals["now"] = datetime.now

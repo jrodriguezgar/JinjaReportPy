@@ -1,12 +1,11 @@
 """PDF export functionality using WeasyPrint."""
 
+import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from .exceptions import PDFExportError
 
-if TYPE_CHECKING:
-    from weasyprint import HTML, CSS
+logger = logging.getLogger(__name__)
 
 
 def check_weasyprint_available() -> bool:
@@ -28,6 +27,8 @@ def html_to_pdf(
     output_path: Path | str | None = None,
     stylesheets: list[str] | None = None,
     base_url: str | None = None,
+    zoom: float = 1.0,
+    optimize_images: bool = True,
 ) -> bytes:
     """Convert HTML content to PDF.
 
@@ -36,6 +37,8 @@ def html_to_pdf(
         output_path: Optional path to save the PDF file.
         stylesheets: Optional list of additional CSS strings.
         base_url: Base URL for resolving relative URLs.
+        zoom: Zoom factor for PDF rendering (default 1.0).
+        optimize_images: Optimize embedded images in PDF output.
 
     Returns:
         PDF content as bytes.
@@ -44,7 +47,7 @@ def html_to_pdf(
         PDFExportError: If conversion fails or WeasyPrint not available.
     """
     try:
-        from weasyprint import HTML, CSS
+        from weasyprint import CSS, HTML
     except ImportError as e:
         raise PDFExportError(
             "WeasyPrint is not installed. Install it with: pip install weasyprint",
@@ -62,7 +65,11 @@ def html_to_pdf(
                 css_list.append(CSS(string=css_content))
 
         # Generate PDF
-        pdf_bytes = html_doc.write_pdf(stylesheets=css_list if css_list else None)
+        pdf_bytes = html_doc.write_pdf(
+            stylesheets=css_list if css_list else None,
+            zoom=zoom,
+            optimize_images=optimize_images,
+        )
 
         # Save to file if path provided
         if output_path:
@@ -73,6 +80,7 @@ def html_to_pdf(
         return pdf_bytes
 
     except Exception as e:
+        logger.exception("PDF generation failed")
         raise PDFExportError(f"Failed to generate PDF: {e}", original_error=e)
 
 
@@ -95,17 +103,17 @@ def get_print_css(
 @page {{
     size: {page_width} {page_height};
     margin: {margin};
-    
+
     @top-center {{
         content: element(header);
     }}
-    
+
     @bottom-center {{
         content: element(footer);
     }}
-    
+
     @bottom-right {{
-        content: "Página " counter(page) " de " counter(pages);
+        content: "Page " counter(page) " of " counter(pages);
         font-size: 9pt;
         color: #666;
     }}
@@ -145,7 +153,7 @@ def get_print_css(
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }}
-    
+
     .no-print {{
         display: none !important;
     }}

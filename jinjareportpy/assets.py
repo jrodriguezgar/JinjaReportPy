@@ -1,4 +1,4 @@
-"""Gestión de assets para JinjaReportPy - imágenes, logos y archivos estáticos."""
+"""Asset management for JinjaReportPy - images, logos, and static files."""
 
 import base64
 import mimetypes
@@ -49,6 +49,9 @@ class AssetManager:
     def find_asset(self, asset_name: str) -> Path:
         """Find an asset file in the configured directories.
 
+        Only returns paths that are children of configured asset directories.
+        Absolute paths and path-traversal sequences (``..``) are rejected.
+
         Args:
             asset_name: Name or relative path of the asset.
 
@@ -56,17 +59,27 @@ class AssetManager:
             Full path to the asset file.
 
         Raises:
-            AssetNotFoundError: If asset cannot be found.
+            AssetNotFoundError: If asset cannot be found or path is invalid.
         """
         asset_path = Path(asset_name)
 
-        # Check if it's an absolute path
-        if asset_path.is_absolute() and asset_path.exists():
-            return asset_path
+        # Reject absolute paths and traversal attempts
+        if asset_path.is_absolute() or asset_name.startswith("/") or ".." in asset_path.parts:
+            raise AssetNotFoundError(
+                f"Invalid asset path (absolute paths and '..' are not allowed): "
+                f"{asset_name}"
+            )
 
         # Search in configured directories
         for directory in self.assets_dirs:
-            full_path = directory / asset_name
+            full_path = (directory / asset_name).resolve()
+
+            # Ensure resolved path is still within the allowed directory
+            try:
+                full_path.relative_to(directory.resolve())
+            except ValueError:
+                continue
+
             if full_path.exists():
                 return full_path
 

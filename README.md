@@ -15,6 +15,8 @@
 - 🎨 **Custom Templates**: Add templates via directory or inline code
 - 🐼 **Pandas Support**: Direct DataFrame integration (optional)
 
+See [FEATURES.md](FEATURES.md) for the complete feature inventory.
+
 ## 📦 Installation
 
 ```bash
@@ -872,6 +874,15 @@ JinjaReportPy includes a full CLI for managing configuration and generating docu
 python -m jinjareportpy [command] [options]
 ```
 
+### Global Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--version` | `-V` | Show version and exit |
+| `--verbose` | `-v` | Increase verbosity (`-v` = INFO, `-vv` = DEBUG) |
+| `--quiet` | `-q` | Suppress non-error output |
+| `--no-color` | | Disable colored output |
+
 ### Available Commands
 
 | Command | Description |
@@ -885,6 +896,8 @@ python -m jinjareportpy [command] [options]
 | `templates` | List available templates |
 | `invoice` | Generate an invoice |
 | `quote` | Generate a quote |
+| `receipt` | Generate a receipt |
+| `delivery` | Generate a delivery note |
 
 ### Configuration Commands
 
@@ -936,7 +949,15 @@ python -m jinjareportpy invoice -n INV-001 --pdf --open
 
 # Generate quote
 python -m jinjareportpy quote -n QT-2026-001
-python -m jinjareportpy quote -n QT-001 --company "My Company" --pdf
+python -m jinjareportpy quote -n QT-001 --company "My Company" --validity 60 --pdf
+
+# Generate receipt
+python -m jinjareportpy receipt -n REC-2026-001
+python -m jinjareportpy receipt -n REC-001 --amount 1500.00 --concept "Invoice INV-2025-089" --pdf
+
+# Generate delivery note
+python -m jinjareportpy delivery -n DN-2026-001
+python -m jinjareportpy delivery -n DN-001 --company "Warehouse Inc." --pdf --open
 ```
 
 ### List Resources
@@ -971,7 +992,7 @@ python -m jinjareportpy templates
 └─────────────────────────────────────────────────────────────┘
 ```
 
-The CLI is the **user interface**, while `config.py` is the **configuration engine** that all modules (`document.py`, `report.py`, `generator.py`) use internally.
+The CLI is the **user interface**, while `config.py` is the **configuration engine** that all modules (`document.py`, `report.py`) use internally.
 
 **Persistence Options:**
 
@@ -1067,7 +1088,6 @@ jinjareportpy/                    # Project root
 │   ├── filters.py             # Jinja2 filters
 │   ├── pdf.py                 # PDF export
 │   ├── viewer.py              # Browser/PDF viewer
-│   ├── generator.py           # Legacy API
 │   ├── exceptions.py          # Custom exceptions
 │   ├── templates/             # 📄 Built-in document templates
 │   │   ├── base.html
@@ -1087,7 +1107,6 @@ jinjareportpy/                    # Project root
 │
 ├── tests/                     # 🧪 Unit tests
 │   ├── test_report.py
-│   ├── test_generator.py
 │   └── test_assets.py
 │
 ├── .github/                  # GitHub configuration
@@ -1121,6 +1140,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## 👤 Author
 
-**DatamanEdge**
+**jrodriguezgar**
 
-- GitHub: [@DatamanEdge](https://github.com/DatamanEdge)
+- GitHub: [@jrodriguezgar](https://github.com/jrodriguezgar)
+- Repository: [JinjaReportPy](https://github.com/jrodriguezgar/JinjaReportPy)

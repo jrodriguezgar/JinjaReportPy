@@ -19,7 +19,6 @@ The formats directory is configurable via:
 - Config file: jinjareportpy.toml [paths.formats_dir]
 """
 
-from pathlib import Path
 from functools import lru_cache
 from typing import TypedDict
 
@@ -48,10 +47,10 @@ _active_format: str = "default"
 
 def set_default_format(format_name: str) -> None:
     """Establece el formato por defecto para nuevas secciones.
-    
+
     Args:
         format_name: Nombre del formato (default, corporate, minimal).
-    
+
     Raises:
         ValueError: Si el formato no existe.
     """
@@ -76,7 +75,7 @@ def get_default_format() -> str:
 
 def get_available_formats() -> list[str]:
     """Lista los formatos disponibles.
-    
+
     Returns:
         Lista de nombres de formatos.
     """
@@ -91,30 +90,30 @@ def get_available_formats() -> list[str]:
 @lru_cache(maxsize=8)
 def get_format_templates(format_name: str | None = None) -> FormatTemplates:
     """Carga los templates de un formato.
-    
+
     Args:
         format_name: Nombre del formato. Si es None, usa el formato activo.
-    
+
     Returns:
         Diccionario con todos los templates del formato.
-    
+
     Raises:
         ValueError: Si el formato no existe.
     """
     name = format_name or _active_format
     formats_dir = get_formats_dir()
     format_path = formats_dir / name
-    
+
     if not format_path.is_dir():
         raise ValueError(f"Formato '{name}' no encontrado en {formats_dir}")
-    
+
     def read_file(filename: str) -> str:
         """Lee un archivo del formato, devuelve string vacío si no existe."""
         file_path = format_path / filename
         if file_path.exists():
             return file_path.read_text(encoding="utf-8")
         return ""
-    
+
     return FormatTemplates(
         header_html=read_file("header.html"),
         header_css=read_file("header.css"),

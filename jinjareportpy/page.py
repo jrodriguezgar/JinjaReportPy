@@ -1,32 +1,32 @@
 """
-Page - Representa una página del informe con cabecera, pie y secciones.
+Page - Represents a report page with header, footer, and sections.
 """
 
 from dataclasses import dataclass, field
 from typing import Any
 
-from .sections import Section, HeaderSection, FooterSection
+from .sections import FooterSection, HeaderSection, Section
 
 
 @dataclass
 class Page:
-    """Una página del informe con cabecera, pie y secciones dinámicas.
+    """A report page with header, footer, and dynamic sections.
 
     Attributes:
-        header: Sección de cabecera (opcional).
-        footer: Sección de pie de página (opcional).
-        sections: Lista de secciones de contenido.
-        css: CSS adicional específico de la página.
-        page_number: Número de página (se asigna automáticamente).
-        format_name: Formato por defecto para las secciones (None = formato activo).
+        header: Header section (optional).
+        footer: Footer section (optional).
+        sections: List of content sections.
+        css: Additional page-specific CSS.
+        page_number: Page number (assigned automatically).
+        format_name: Default format for sections (None = active format).
 
     Example:
         >>> page = Page()
-        >>> page.set_header(title="Mi Informe", subtitle="2025")
+        >>> page.set_header(title="My Report", subtitle="2025")
         >>> page.add_section(Section(
         ...     name="intro",
         ...     template="<p>{{ text }}</p>",
-        ...     data={"text": "Introducción..."}
+        ...     data={"text": "Introduction..."}
         ... ))
     """
 
@@ -39,30 +39,40 @@ class Page:
 
     def set_header(
         self,
-        title: str = "",
+        title: str | HeaderSection = "",
         subtitle: str = "",
         logo: str = "",
         date: str = "",
+        *,
         template: str | None = None,
         css: str | None = None,
         data: dict[str, Any] | None = None,
         format_name: str | None = None,
     ) -> "Page":
-        """Configura la cabecera de la página.
+        """Configure the page header.
+
+        Accepts either a ``HeaderSection`` object directly or individual
+        keyword arguments to create one.
 
         Args:
-            title: Título principal.
-            subtitle: Subtítulo.
-            logo: Ruta o Base64 del logo.
-            date: Fecha a mostrar.
-            template: Template HTML personalizado (None = usar formato).
-            css: CSS personalizado (None = usar formato).
-            data: Datos adicionales.
-            format_name: Formato a usar (None = formato de la página o activo).
+            title: Main title, or a ``HeaderSection`` instance.
+            subtitle: Subtitle.
+            logo: Path or Base64 logo string.
+            date: Date to display.
+            template: Custom HTML template (None = use format).
+            css: Custom CSS (None = use format).
+            data: Additional data.
+            format_name: Format to use (None = page or active format).
 
         Returns:
-            Self para encadenamiento.
+            Self for method chaining.
         """
+        if isinstance(title, HeaderSection):
+            self.header = title
+            if self.header.format_name is None and self.format_name:
+                self.header.format_name = self.format_name
+            return self
+
         self.header = HeaderSection(
             title=title,
             subtitle=subtitle,
@@ -77,28 +87,38 @@ class Page:
 
     def set_footer(
         self,
-        left_text: str = "",
+        left_text: str | FooterSection = "",
         right_text: str = "",
         center_text: str = "",
+        *,
         template: str | None = None,
         css: str | None = None,
         data: dict[str, Any] | None = None,
         format_name: str | None = None,
     ) -> "Page":
-        """Configura el pie de página.
+        """Configure the page footer.
+
+        Accepts either a ``FooterSection`` object directly or individual
+        keyword arguments to create one.
 
         Args:
-            left_text: Texto izquierdo.
-            right_text: Texto derecho.
-            center_text: Texto central.
-            template: Template HTML personalizado (None = usar formato).
-            css: CSS personalizado (None = usar formato).
-            data: Datos adicionales.
-            format_name: Formato a usar (None = formato de la página o activo).
+            left_text: Left-aligned text, or a ``FooterSection`` instance.
+            right_text: Right-aligned text.
+            center_text: Center-aligned text.
+            template: Custom HTML template (None = use format).
+            css: Custom CSS (None = use format).
+            data: Additional data.
+            format_name: Format to use (None = page or active format).
 
         Returns:
-            Self para encadenamiento.
+            Self for method chaining.
         """
+        if isinstance(left_text, FooterSection):
+            self.footer = left_text
+            if self.footer.format_name is None and self.format_name:
+                self.footer.format_name = self.format_name
+            return self
+
         self.footer = FooterSection(
             left_text=left_text,
             right_text=right_text,
@@ -120,23 +140,23 @@ class Page:
         css: str | None = None,
         format_name: str | None = None,
     ) -> "Page":
-        """Añade una sección a la página.
+        """Add a section to the page.
 
-        Puede recibir un objeto Section o los parámetros para crear uno.
+        Accepts either a Section object or parameters to create one.
 
         Args:
-            section: Objeto Section existente.
-            name: Nombre de la sección (si no se pasa section).
-            template: Template HTML (None = usar formato).
-            data: Datos para el template.
-            css: CSS de la sección (None = usar formato).
-            format_name: Formato a usar (None = formato de la página o activo).
+            section: Existing Section object.
+            name: Section name (if section is not provided).
+            template: HTML template (None = use format).
+            data: Data for the template.
+            css: Section CSS (None = use format).
+            format_name: Format to use (None = page or active format).
 
         Returns:
-            Self para encadenamiento.
+            Self for method chaining.
         """
         if section is not None:
-            # Si la sección no tiene formato, usar el de la página
+            # If the section has no format, use the page's format
             if section.format_name is None and self.format_name:
                 section.format_name = self.format_name
             self.sections.append(section)
@@ -151,10 +171,10 @@ class Page:
         return self
 
     def render_css(self) -> str:
-        """Recopila todo el CSS de la página y sus secciones.
+        """Collect all CSS from the page and its sections.
 
         Returns:
-            CSS combinado.
+            Combined CSS string.
         """
         css_parts = []
 
@@ -179,10 +199,10 @@ class Page:
         return "\n\n".join(css_parts)
 
     def render(self) -> str:
-        """Renderiza la página completa.
+        """Render the complete page.
 
         Returns:
-            HTML de la página.
+            Page HTML string.
         """
         parts = ['<div class="page">']
 

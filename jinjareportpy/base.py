@@ -5,17 +5,22 @@ Provides common functionality for generating HTML/PDF output.
 This is the parent class for both Document and Report classes.
 """
 
+import tempfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, BaseLoader, TemplateNotFound
-
-from .config import ReportConfig
-from .exceptions import ExportError, TemplateNotFoundError
-
+from .config import JinjaReportConfig, ReportConfig
+from .exceptions import ExportError, ViewerError
+from .pdf import check_weasyprint_available, html_to_pdf
+from .viewer import (
+    check_winformpy_available,
+    open_in_browser,
+    open_in_embedded_browser,
+    open_pdf_viewer,
+)
 
 # Base CSS for A4 print layout
 BASE_CSS = """
@@ -74,8 +79,10 @@ tbody tr:hover { background: #f8fafc; }
 .table-bordered th, .table-bordered td { border: 1px solid var(--border-color); }
 
 /* Cards */
-.card { border: 1px solid var(--border-color); border-radius: 4px; padding: 15px; margin-bottom: 15px; }
-.card-header { font-weight: 600; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border-color); }
+.card { border: 1px solid var(--border-color); border-radius: 4px;
+  padding: 15px; margin-bottom: 15px; }
+.card-header { font-weight: 600; margin-bottom: 10px;
+  padding-bottom: 5px; border-bottom: 1px solid var(--border-color); }
 
 /* Grid Layout */
 .row { display: flex; flex-wrap: wrap; margin: 0 -10px; }
@@ -115,21 +122,21 @@ tbody tr:hover { background: #f8fafc; }
 @dataclass
 class BaseDocument(ABC):
     """Abstract base class for documents and reports.
-    
+
     Provides common functionality:
     - HTML rendering
     - HTML and PDF export
     - Browser preview
-    
+
     Subclasses must implement:
     - render_content(): Returns the document body HTML
     - render_css(): Returns document-specific CSS
-    
+
     Attributes:
         title: Document title.
         config: Document configuration settings.
         global_css: Additional global CSS styles.
-    
+
     Example:
         >>> class MyDocument(BaseDocument):
         ...     def render_content(self):
@@ -139,63 +146,63 @@ class BaseDocument(ABC):
         >>> doc = MyDocument(title="My Doc")
         >>> doc.export_html("output.html")
     """
-    
+
     title: str = "Document"
     config: ReportConfig = field(default_factory=ReportConfig)
     global_css: str = ""
-    
+
     _last_rendered: str = field(default="", repr=False)
-    
+
     @abstractmethod
     def render_content(self) -> str:
         """Render the main content of the document.
-        
+
         Returns:
             HTML content string.
         """
         pass
-    
+
     @abstractmethod
     def render_css(self) -> str:
         """Generate document-specific CSS.
-        
+
         Returns:
             CSS string.
         """
         pass
-    
+
     def get_base_css(self) -> str:
         """Return the base CSS.
-        
+
         Returns:
             Base CSS for documents (A4 layout, typography, etc.).
         """
         return BASE_CSS
-    
+
     def render(self) -> str:
         """Generate the complete HTML document.
-        
+
         Combines base CSS, document CSS, and global CSS with the
         rendered content to produce a complete HTML document.
-        
+
         Returns:
             Complete HTML string ready for viewing or export.
         """
         # Collect CSS
         css_parts = [self.get_base_css()]
-        
+
         doc_css = self.render_css()
         if doc_css:
             css_parts.append(f"/* Document CSS */\n{doc_css}")
-        
+
         if self.global_css:
             css_parts.append(f"/* Global CSS */\n{self.global_css}")
-        
+
         all_css = "\n\n".join(css_parts)
-        
+
         # Render content
         content_html = self.render_content()
-        
+
         # Build complete HTML
         html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -211,125 +218,129 @@ class BaseDocument(ABC):
 {content_html}
 </body>
 </html>"""
-        
+
         self._last_rendered = html
         return html
-    
+
+    def _resolve_output_path(
+        self,
+        path: Path | str | None,
+        filename: str,
+    ) -> Path:
+        """Resolve and prepare the output path for export.
+
+        Args:
+            path: Full path, directory, or None (uses config.output_dir).
+            filename: Default filename when path is a directory.
+
+        Returns:
+            Resolved output Path with parent directories created.
+        """
+        if path is None:
+            resolved = self.config.output_dir / filename
+        else:
+            resolved = Path(path)
+            if resolved.is_dir() or resolved.suffix == "":
+                resolved = resolved / filename
+
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        return resolved
+
     def export_html(
         self,
         path: Path | str | None = None,
         filename: str = "document.html",
     ) -> Path:
         """Export the document to an HTML file.
-        
+
         Args:
             path: Full path or output directory. If None, uses config.output_dir.
             filename: Filename to use if path is a directory.
-        
+
         Returns:
             Path to the generated file.
-        
+
         Example:
             >>> doc.export_html("output/report.html")
             >>> doc.export_html("output/", filename="my_report.html")
         """
         html = self._last_rendered or self.render()
-        
-        if path is None:
-            path = self.config.output_dir / filename
-        else:
-            path = Path(path)
-            # Treat as directory when it already exists or when no file extension is provided.
-            if path.is_dir() or path.suffix == "":
-                path = path / filename
-        
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(html, encoding="utf-8")
-        
-        return path
-    
+        output = self._resolve_output_path(path, filename)
+        output.write_text(html, encoding="utf-8")
+        return output
+
     def export_pdf(
         self,
         path: Path | str | None = None,
         filename: str = "document.pdf",
     ) -> Path:
         """Export the document to a PDF file.
-        
+
         Requires WeasyPrint to be installed (pip install weasyprint).
-        
+
         Args:
             path: Full path or output directory. If None, uses config.output_dir.
             filename: Filename to use if path is a directory.
-        
+
         Returns:
             Path to the generated PDF file.
-        
+
         Raises:
             ExportError: If WeasyPrint is not installed.
-        
+
         Example:
             >>> doc.export_pdf("output/report.pdf")
         """
-        from .pdf import html_to_pdf, check_weasyprint_available
-        
         if not check_weasyprint_available():
             raise ExportError(
                 "WeasyPrint is not installed. Install with: pip install weasyprint"
             )
-        
+
         html = self._last_rendered or self.render()
-        
-        if path is None:
-            path = self.config.output_dir / filename
-        else:
-            path = Path(path)
-            # Treat as directory when it already exists or when no file extension is provided.
-            if path.is_dir() or path.suffix == "":
-                path = path / filename
-        
-        html_to_pdf(html, path)
-        return path
-    
+        output = self._resolve_output_path(path, filename)
+        html_to_pdf(
+            html,
+            output,
+            zoom=JinjaReportConfig.get_pdf_zoom(),
+            optimize_images=JinjaReportConfig.get_pdf_optimize_images(),
+        )
+        return output
+
     def preview(self, browser: str | None = None) -> Path:
         """Open the document in a web browser.
-        
+
         Args:
             browser: Browser command (None = system default).
-        
+
         Returns:
             Path to the temporary HTML file.
-        
+
         Example:
             >>> doc.preview()  # Opens in default browser
             >>> doc.preview("chrome")  # Opens in Chrome
         """
-        from .viewer import open_in_browser
-        
         html = self._last_rendered or self.render()
         return open_in_browser(html_content=html, browser_command=browser)
-    
+
     def preview_pdf(self, viewer: str | None = None) -> Path:
         """Generate PDF and open it in a PDF viewer.
-        
+
         Args:
             viewer: PDF viewer command (None = system default).
-        
+
         Returns:
             Path to the generated PDF file.
-        
+
         Example:
             >>> doc.preview_pdf()  # Opens in default PDF viewer
         """
-        import tempfile
-        from .viewer import open_pdf_viewer
-        
         temp_dir = Path(tempfile.gettempdir()) / "jinjareportpy"
         temp_dir.mkdir(exist_ok=True)
         pdf_path = temp_dir / f"preview_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-        
+
         self.export_pdf(pdf_path)
         open_pdf_viewer(pdf_path, viewer)
-        
+
         return pdf_path
 
     def preview_embedded(
@@ -339,23 +350,23 @@ class BaseDocument(ABC):
         with_navigation: bool = False,
     ) -> Any:
         """Display the document in a WinFormPy embedded browser.
-        
+
         Requires WinFormPy and tkinterweb to be installed.
-        
+
         Args:
             parent: Parent WinFormPy control (Form, Panel, etc.).
             props: Dictionary of properties for the browser control.
             with_navigation: If True, includes navigation bar.
-        
+
         Returns:
             WebBrowser or WebBrowserPanel control instance.
-        
+
         Raises:
             ViewerError: If WinFormPy is not installed.
-        
+
         Example:
             >>> from winformpy import Form, DockStyle, Application
-            >>> 
+            >>>
             >>> class DocViewer(Form):
             ...     def __init__(self, doc):
             ...         super().__init__()
@@ -363,13 +374,11 @@ class BaseDocument(ABC):
             ...         self.Width = 800
             ...         self.Height = 600
             ...         doc.preview_embedded(self, {'Dock': DockStyle.Fill})
-            >>> 
+            >>>
             >>> doc = Document(title="Invoice", ...)
             >>> viewer = DocViewer(doc)
             >>> Application.Run(viewer)
         """
-        from .viewer import open_in_embedded_browser
-        
         html = self._last_rendered or self.render()
         return open_in_embedded_browser(parent, html, props, with_navigation)
 
@@ -381,59 +390,54 @@ class BaseDocument(ABC):
         with_navigation: bool = True,
     ) -> Any:
         """Create a WinFormPy Form to display this document.
-        
+
         Creates a standalone Form window with an embedded browser
         displaying the document content. Call Application.Run(form)
         or form.Show() to display it.
-        
+
         Requires WinFormPy and tkinterweb to be installed.
-        
+
         Args:
             title: Window title (defaults to document title).
             width: Form width in pixels.
             height: Form height in pixels.
             with_navigation: If True, includes navigation bar.
-        
+
         Returns:
             A WinFormPy Form instance ready to be displayed.
-        
+
         Raises:
             ViewerError: If WinFormPy is not installed.
-        
+
         Example:
             >>> from winformpy import Application
-            >>> 
+            >>>
             >>> report = Report(title="Sales Report")
             >>> report.add_page().add_section(...)
-            >>> 
+            >>>
             >>> viewer = report.create_viewer_form()
             >>> Application.Run(viewer)
         """
-        from .viewer import check_winformpy_available
-        from .exceptions import ViewerError
-        
         if not check_winformpy_available():
             raise ViewerError(
                 "WinFormPy is not installed. Install with: pip install winformpy tkinterweb"
             )
-        
-        from winformpy import Form, DockStyle
-        
-        html = self._last_rendered or self.render()
-        
+
+        from winformpy import DockStyle, Form
+
         class DocumentViewerForm(Form):
-            def __init__(inner_self):
+            def __init__(inner_self):  # noqa: N805
                 super().__init__()
                 inner_self.Text = title or self.title
                 inner_self.Width = width
                 inner_self.Height = height
                 inner_self.StartPosition = "CenterScreen"
-                
+
                 # Create embedded browser
                 inner_self.browser = self.preview_embedded(
                     inner_self,
                     {'Dock': DockStyle.Fill},
                     with_navigation=with_navigation,
                 )
-        
+
         return DocumentViewerForm()

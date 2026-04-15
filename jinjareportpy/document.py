@@ -13,16 +13,157 @@ Custom templates can be added in two ways:
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, BaseLoader
+from jinja2 import DictLoader, FileSystemLoader
+from jinja2.sandbox import SandboxedEnvironment
 
 from .base import BaseDocument
-from .config import ReportConfig, get_templates_dir
-from .filters import register_default_filters
+from .config import get_templates_dir
 from .exceptions import TemplateNotFoundError
+from .filters import register_default_filters
+
+# =============================================================================
+# DATA CLASSES - Structured input for document factories
+# =============================================================================
+
+
+@dataclass
+class PartyInfo:
+    """Company or client information for documents.
+
+    Example:
+        >>> company = PartyInfo(name="My Company Ltd.", tax_id="GB123456789")
+        >>> client = PartyInfo(name="Client Corp", address="456 St")
+    """
+
+    name: str = ""
+    tax_id: str = ""
+    address: str = ""
+    city: str = ""
+    postal_code: str = ""
+    country: str = ""
+    phone: str = ""
+    email: str = ""
+    logo: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary for template rendering."""
+        return {k: v for k, v in self.__dict__.items() if v}
+
+
+def _party_dict(party: PartyInfo | dict[str, Any]) -> dict[str, Any]:
+    """Convert a PartyInfo or raw dict to a template-ready dictionary."""
+    return party.to_dict() if isinstance(party, PartyInfo) else party
+
+
+@dataclass
+class InvoiceData:
+    """Data for creating an invoice document.
+
+    Example:
+        >>> data = InvoiceData(
+        ...     number="INV-2026-001",
+        ...     company=PartyInfo(name="My Company"),
+        ...     client=PartyInfo(name="Client Corp"),
+        ...     items=[{"description": "Service", "quantity": 1, "unit_price": 100}],
+        ... )
+        >>> invoice = create_invoice(data)
+    """
+
+    number: str = ""
+    company: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    client: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    items: list[dict[str, Any]] = field(default_factory=list)
+    issue_date: datetime | str | None = None
+    due_date: datetime | str | None = None
+    notes: str = ""
+    payment_info: dict[str, Any] | None = None
+    tax_rate: float = 21.0
+    currency: str = "€"
+    css: str = ""
+
+
+@dataclass
+class QuoteData:
+    """Data for creating a quote document.
+
+    Example:
+        >>> data = QuoteData(
+        ...     number="QT-2026-015",
+        ...     company=PartyInfo(name="My Company"),
+        ...     client=PartyInfo(name="Prospect"),
+        ...     items=[{"description": "Dev", "quantity": 1, "unit_price": 5000}],
+        ... )
+        >>> quote = create_quote(data)
+    """
+
+    number: str = ""
+    company: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    client: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    items: list[dict[str, Any]] = field(default_factory=list)
+    validity_days: int = 30
+    notes: str = ""
+    terms: str = ""
+    tax_rate: float = 21.0
+    currency: str = "€"
+    discount: float = 0.0
+    css: str = ""
+
+
+@dataclass
+class ReceiptData:
+    """Data for creating a receipt document.
+
+    Example:
+        >>> data = ReceiptData(
+        ...     number="REC-2026-042",
+        ...     company=PartyInfo(name="My Company"),
+        ...     client=PartyInfo(name="Client"),
+        ...     amount=1500.00,
+        ...     concept="Payment for INV-2025-089",
+        ... )
+        >>> receipt = create_receipt(data)
+    """
+
+    number: str = ""
+    company: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    client: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    amount: float = 0.0
+    concept: str = ""
+    payment_method: str = "Cash"
+    payment_date: datetime | None = None
+    notes: str = ""
+    currency: str = "€"
+    css: str = ""
+
+
+@dataclass
+class DeliveryNoteData:
+    """Data for creating a delivery note document.
+
+    Example:
+        >>> data = DeliveryNoteData(
+        ...     number="DN-2026-007",
+        ...     company=PartyInfo(name="My Company"),
+        ...     client=PartyInfo(name="Client", address="456 St"),
+        ...     items=[{"description": "Server Unit", "quantity": 2}],
+        ... )
+        >>> delivery = create_delivery_note(data)
+    """
+
+    number: str = ""
+    company: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    client: PartyInfo | dict[str, Any] = field(default_factory=dict)
+    items: list[dict[str, Any]] = field(default_factory=list)
+    delivery_date: datetime | None = None
+    shipping_address: str = ""
+    carrier: str = ""
+    tracking_number: str = ""
+    notes: str = ""
+    css: str = ""
 
 
 # Document-specific CSS
@@ -232,20 +373,20 @@ DOCUMENT_CSS = """
 @dataclass
 class Document(BaseDocument):
     """Template-based document generator.
-    
+
     For creating invoices, quotes, contracts, receipts, delivery notes, etc.
-    
+
     Attributes:
         title: Document title.
         template: Template name (file) or inline template string.
         data: Data dictionary for template rendering.
         css: Additional CSS styles for the document.
         config: Document configuration settings.
-    
+
     Custom templates can be added in two ways:
         1. Via directory: Place .html files in templates/ directory
         2. Via code: Pass inline template string to template parameter
-    
+
     Example with file template:
         >>> doc = Document(
         ...     title="Invoice #001",
@@ -259,7 +400,7 @@ class Document(BaseDocument):
         ...     }
         ... )
         >>> doc.export_pdf("invoice.pdf")
-    
+
     Example with inline template:
         >>> doc = Document(
         ...     title="Custom Contract",
@@ -274,54 +415,53 @@ class Document(BaseDocument):
         ... )
         >>> doc.export_html("contract.html")
     """
-    
+
     template: str = ""
     data: dict[str, Any] = field(default_factory=dict)
     css: str = ""
-    
+
     # Template directories (uses centralized config)
     _templates_dir: Path = field(
         default_factory=get_templates_dir,
         repr=False,
     )
-    
+
     def render_css(self) -> str:
         """Generate the document CSS.
-        
+
         Returns:
             Document-specific CSS styles.
         """
         css_parts = [DOCUMENT_CSS]
-        
+
         if self.css:
             css_parts.append(self.css)
-        
+
         return "\n".join(css_parts)
-    
+
     def render_content(self) -> str:
         """Render the document content using the template.
-        
+
         Returns:
             Rendered HTML content.
-        
+
         Raises:
             TemplateNotFoundError: If template file is not found.
         """
         if not self.template:
             return "<div class='document'><p>No template specified</p></div>"
-        
-        # Setup Jinja environment
-        env = Environment(
+
+        # Setup Jinja environment (sandboxed to prevent SSTI)
+        env = SandboxedEnvironment(
             loader=FileSystemLoader(str(self._templates_dir)),
             autoescape=True,
         )
         register_default_filters(env)
-        
+
         # Check if template is inline or file reference
         if "<" in self.template:
             # Inline template
-            from jinja2 import DictLoader
-            env = Environment(
+            env = SandboxedEnvironment(
                 loader=DictLoader({"inline": self.template}),
                 autoescape=True,
             )
@@ -332,16 +472,16 @@ class Document(BaseDocument):
             template_name = self.template
             if not template_name.endswith(".html"):
                 template_name += ".html"
-            
+
             try:
                 template = env.get_template(template_name)
             except Exception as e:
                 raise TemplateNotFoundError(
                     f"Template '{template_name}' not found in {self._templates_dir}"
                 ) from e
-        
+
         return template.render(**self.data)
-    
+
     def __repr__(self) -> str:
         return f"Document(title='{self.title}', template='{self.template}')"
 
@@ -351,10 +491,10 @@ class Document(BaseDocument):
 # =============================================================================
 
 def create_invoice(
-    invoice_number: str,
-    company: dict[str, Any],
-    client: dict[str, Any],
-    items: list[dict[str, Any]],
+    invoice_number: str | InvoiceData,
+    company: dict[str, Any] | PartyInfo | None = None,
+    client: dict[str, Any] | PartyInfo | None = None,
+    items: list[dict[str, Any]] | None = None,
     issue_date: datetime | str | None = None,
     due_date: datetime | str | None = None,
     notes: str = "",
@@ -364,13 +504,13 @@ def create_invoice(
     css: str = "",
 ) -> Document:
     """Create an invoice document.
-    
-    Creates a professional invoice with automatic calculations for subtotals,
-    taxes, and totals. Supports multiple VAT rates per item.
-    
+
+    Accepts either an ``InvoiceData`` dataclass as the first argument, or
+    individual keyword arguments for backward compatibility.
+
     Args:
-        invoice_number: Unique invoice identifier (e.g., "INV-2026-001").
-        company: Issuer/seller information dictionary containing:
+        invoice_number: Unique identifier (e.g., "INV-2026-001") or ``InvoiceData``.
+        company: Issuer info (``PartyInfo`` or dict). Ignored when using ``InvoiceData``.
             - name (str): Company name (required)
             - tax_id (str): Tax identification number
             - address (str): Street address
@@ -403,16 +543,16 @@ def create_invoice(
         tax_rate: Default VAT rate percentage (default: 21.0).
         currency: Currency symbol (default: "€").
         css: Additional custom CSS styles.
-    
+
     Returns:
         Document: Configured invoice document ready for export.
-    
+
     Automatic Calculations:
         - Line totals: quantity × unit_price
         - Subtotal: Sum of all line totals
         - VAT amount: Grouped by VAT rate
         - Total: subtotal + VAT amounts
-    
+
     Example:
         >>> invoice = create_invoice(
         ...     invoice_number="INV-2026-001",
@@ -436,8 +576,25 @@ def create_invoice(
         ... )
         >>> invoice.export_pdf("invoice.pdf")
     """
-    from datetime import timedelta
-    
+    # Unpack InvoiceData if provided
+    if isinstance(invoice_number, InvoiceData):
+        d = invoice_number
+        invoice_number = d.number
+        company = _party_dict(d.company)
+        client = _party_dict(d.client)
+        items = d.items
+        issue_date = d.issue_date
+        due_date = d.due_date
+        notes = d.notes
+        payment_info = d.payment_info
+        tax_rate = d.tax_rate
+        currency = d.currency
+        css = d.css
+    else:
+        company = company.to_dict() if isinstance(company, PartyInfo) else (company or {})
+        client = client.to_dict() if isinstance(client, PartyInfo) else (client or {})
+        items = items or []
+
     if issue_date is None:
         issue_date = datetime.now()
     if due_date is None:
@@ -445,7 +602,7 @@ def create_invoice(
             due_date = issue_date + timedelta(days=30)
         else:
             due_date = datetime.now() + timedelta(days=30)
-    
+
     # Calculate totals for items
     processed_items = []
     for item in items:
@@ -453,7 +610,7 @@ def create_invoice(
         price = item.get("unit_price", 0)
         vat = item.get("vat_rate", tax_rate)
         total = item.get("total", qty * price)
-        
+
         processed_items.append({
             **item,
             "quantity": qty,
@@ -461,24 +618,24 @@ def create_invoice(
             "vat_rate": vat,
             "total": total,
         })
-    
+
     # Calculate subtotal and VAT
     subtotal = sum(item["total"] for item in processed_items)
-    
+
     # Group by VAT rate
     vat_totals: dict[float, float] = {}
     for item in processed_items:
         rate = item["vat_rate"]
         amount = item["total"] * (rate / 100)
         vat_totals[rate] = vat_totals.get(rate, 0) + amount
-    
+
     vat_lines = [
         {"rate": rate, "amount": amount}
         for rate, amount in sorted(vat_totals.items())
     ]
-    
+
     total = subtotal + sum(vat_totals.values())
-    
+
     return Document(
         title=f"Invoice {invoice_number}",
         template="invoice",
@@ -501,10 +658,10 @@ def create_invoice(
 
 
 def create_quote(
-    quote_number: str,
-    company: dict[str, Any],
-    client: dict[str, Any],
-    items: list[dict[str, Any]],
+    quote_number: str | QuoteData,
+    company: dict[str, Any] | PartyInfo | None = None,
+    client: dict[str, Any] | PartyInfo | None = None,
+    items: list[dict[str, Any]] | None = None,
     validity_days: int = 30,
     notes: str = "",
     terms: str = "",
@@ -514,10 +671,10 @@ def create_quote(
     css: str = "",
 ) -> Document:
     """Create a quote/estimate document.
-    
+
     Creates a professional quote with automatic validity date calculation
     and optional discount support.
-    
+
     Args:
         quote_number: Unique quote identifier (e.g., "QT-2026-015").
         company: Issuer information dictionary (see create_invoice for fields).
@@ -534,10 +691,10 @@ def create_quote(
         currency: Currency symbol (default: "€").
         discount: Discount percentage to apply (e.g., 10.0 for 10%).
         css: Additional custom CSS styles.
-    
+
     Returns:
         Document: Configured quote document ready for export.
-    
+
     Example:
         >>> quote = create_quote(
         ...     quote_number="QT-2026-015",
@@ -553,19 +710,38 @@ def create_quote(
         ... )
         >>> quote.export_pdf("quote.pdf")
     """
+    # Unpack QuoteData if provided
+    if isinstance(quote_number, QuoteData):
+        d = quote_number
+        quote_number = d.number
+        company = _party_dict(d.company)
+        client = _party_dict(d.client)
+        items = d.items
+        validity_days = d.validity_days
+        notes = d.notes
+        terms = d.terms
+        tax_rate = d.tax_rate
+        currency = d.currency
+        discount = d.discount
+        css = d.css
+    else:
+        company = company.to_dict() if isinstance(company, PartyInfo) else (company or {})
+        client = client.to_dict() if isinstance(client, PartyInfo) else (client or {})
+        items = items or []
+
     # Calculate totals
     subtotal = sum(
         item.get("total", item.get("quantity", 1) * item.get("unit_price", 0))
         for item in items
     )
-    
+
     discount_amount = subtotal * (discount / 100) if discount else 0
     subtotal_after_discount = subtotal - discount_amount
     vat_amount = subtotal_after_discount * (tax_rate / 100)
     total = subtotal_after_discount + vat_amount
-    
-    validity_date = datetime.now() + __import__("datetime").timedelta(days=validity_days)
-    
+
+    validity_date = datetime.now() + timedelta(days=validity_days)
+
     return Document(
         title=f"Quote {quote_number}",
         template="quote",
@@ -592,11 +768,11 @@ def create_quote(
 
 
 def create_receipt(
-    receipt_number: str,
-    company: dict[str, Any],
-    client: dict[str, Any],
-    amount: float,
-    concept: str,
+    receipt_number: str | ReceiptData,
+    company: dict[str, Any] | PartyInfo | None = None,
+    client: dict[str, Any] | PartyInfo | None = None,
+    amount: float = 0.0,
+    concept: str = "",
     payment_method: str = "Cash",
     payment_date: datetime | None = None,
     notes: str = "",
@@ -604,9 +780,9 @@ def create_receipt(
     css: str = "",
 ) -> Document:
     """Create a payment receipt document.
-    
+
     Creates a receipt confirming payment has been received.
-    
+
     Args:
         receipt_number: Unique receipt identifier (e.g., "REC-2026-042").
         company: Issuer information dictionary (see create_invoice for fields).
@@ -619,16 +795,16 @@ def create_receipt(
         notes: Additional notes or observations.
         currency: Currency symbol (default: "€").
         css: Additional custom CSS styles.
-    
+
     Returns:
         Document: Configured receipt document ready for export.
-    
+
     Use Cases:
         - Payment confirmations
         - Cash receipts
         - Refund documentation
         - Donation receipts
-    
+
     Example:
         >>> receipt = create_receipt(
         ...     receipt_number="REC-2026-042",
@@ -641,9 +817,26 @@ def create_receipt(
         ... )
         >>> receipt.export_html("receipt.html")
     """
+    # Unpack ReceiptData if provided
+    if isinstance(receipt_number, ReceiptData):
+        d = receipt_number
+        receipt_number = d.number
+        company = _party_dict(d.company)
+        client = _party_dict(d.client)
+        amount = d.amount
+        concept = d.concept
+        payment_method = d.payment_method
+        payment_date = d.payment_date
+        notes = d.notes
+        currency = d.currency
+        css = d.css
+    else:
+        company = company.to_dict() if isinstance(company, PartyInfo) else (company or {})
+        client = client.to_dict() if isinstance(client, PartyInfo) else (client or {})
+
     if payment_date is None:
         payment_date = datetime.now()
-    
+
     return Document(
         title=f"Receipt {receipt_number}",
         template="receipt",
@@ -663,10 +856,10 @@ def create_receipt(
 
 
 def create_delivery_note(
-    delivery_number: str,
-    company: dict[str, Any],
-    client: dict[str, Any],
-    items: list[dict[str, Any]],
+    delivery_number: str | DeliveryNoteData,
+    company: dict[str, Any] | PartyInfo | None = None,
+    client: dict[str, Any] | PartyInfo | None = None,
+    items: list[dict[str, Any]] | None = None,
     delivery_date: datetime | None = None,
     shipping_address: str = "",
     carrier: str = "",
@@ -675,9 +868,9 @@ def create_delivery_note(
     css: str = "",
 ) -> Document:
     """Create a delivery note/shipping document.
-    
+
     Creates a delivery note for goods dispatch and tracking.
-    
+
     Args:
         delivery_number: Unique delivery note identifier (e.g., "DN-2026-007").
         company: Sender/shipper information dictionary:
@@ -700,17 +893,17 @@ def create_delivery_note(
         tracking_number: Package tracking number.
         notes: Special handling instructions or notes.
         css: Additional custom CSS styles.
-    
+
     Returns:
         Document: Configured delivery note document ready for export.
-    
+
     Features:
         - Product codes and descriptions
         - Quantity tracking
         - Carrier and tracking information
         - Separate shipping address support
         - Special handling notes
-    
+
     Example:
         >>> delivery = create_delivery_note(
         ...     delivery_number="DN-2026-007",
@@ -733,9 +926,27 @@ def create_delivery_note(
         ... )
         >>> delivery.export_html("delivery_note.html")
     """
+    # Unpack DeliveryNoteData if provided
+    if isinstance(delivery_number, DeliveryNoteData):
+        d = delivery_number
+        delivery_number = d.number
+        company = _party_dict(d.company)
+        client = _party_dict(d.client)
+        items = d.items
+        delivery_date = d.delivery_date
+        shipping_address = d.shipping_address
+        carrier = d.carrier
+        tracking_number = d.tracking_number
+        notes = d.notes
+        css = d.css
+    else:
+        company = company.to_dict() if isinstance(company, PartyInfo) else (company or {})
+        client = client.to_dict() if isinstance(client, PartyInfo) else (client or {})
+        items = items or []
+
     if delivery_date is None:
         delivery_date = datetime.now()
-    
+
     return Document(
         title=f"Delivery Note {delivery_number}",
         template="delivery_note",
@@ -744,7 +955,10 @@ def create_delivery_note(
             "company": company,
             "client": client,
             "items": items,
-            "delivery_address": shipping_address or client.get("address", ""),
+            "delivery_address": shipping_address or (
+                client.get("address", "") if isinstance(client, dict)
+                else ""
+            ),
             "date": delivery_date,
             "carrier": carrier,
             "tracking_number": tracking_number,

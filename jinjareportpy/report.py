@@ -6,15 +6,11 @@ Inherits from BaseDocument for common export functionality.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
-from pathlib import Path
-from typing import Any
 
 from .base import BaseDocument
+from .config import ReportConfig
 from .page import Page
-from .sections import Section, HeaderSection, FooterSection
-from .config import ReportConfig, PageSize, Orientation
-from .exceptions import ExportError
+from .sections import Section
 
 
 @dataclass

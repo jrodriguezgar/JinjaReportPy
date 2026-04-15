@@ -15,10 +15,11 @@ JinjaReportPy is a Python library for generating professional multi-page reports
 
 | Component | Technology | Version |
 |-----------|------------|---------|
-| Language | Python | 3.10+ |
+| Language | Python | 3.10–3.13 |
 | Template Engine | Jinja2 | ≥3.1.0 |
 | PDF Export | WeasyPrint | ≥60.0 (optional) |
 | DataFrame Support | Pandas | ≥2.0.0 (optional) |
+| GUI Viewer | tkinterweb | ≥3.0.0 (optional) |
 | Build System | Hatchling | - |
 | Testing | pytest | ≥8.0.0 |
 | Linting | Ruff | ≥0.4.0 |
@@ -31,27 +32,30 @@ jinjareportpy/                    # Project root
 ├── jinjareportpy/                # 📦 Main package
 │   ├── __init__.py            # Public API exports
 │   ├── __main__.py            # Module entry point
-│   ├── cli.py                 # Command line interface
+│   ├── cli/                   # CLI package
+│   │   ├── __init__.py        # Re-exports for backward compatibility
+│   │   ├── base.py            # CLIBase reusable class, CLIConfig, Subcommand
+│   │   ├── commands.py        # CLI command handlers, parser, main()
+│   │   └── output.py          # Colored terminal output utilities
 │   ├── config.py              # Configuration management (JinjaReportConfig)
 │   ├── base.py                # BaseDocument abstract class
-│   ├── document.py            # Document class + factory functions
+│   ├── document.py            # Document class, data classes + factory functions
 │   ├── report.py              # Report class (multi-page)
 │   ├── page.py                # Page class
-│   ├── sections.py            # Section classes (Header, Footer, Table, KPI, Text)
+│   ├── sections.py            # Section classes (Header, Footer, Table, KPI, Text) — sandboxed Jinja2
 │   ├── builder.py             # ReportBuilder fluent API
-│   ├── assets.py              # Asset management (Base64 conversion)
+│   ├── assets.py              # Asset management (Base64 conversion) — path-traversal safe
 │   ├── filters.py             # Jinja2 custom filters
-│   ├── pdf.py                 # PDF export utilities
-│   ├── viewer.py              # Browser/PDF viewer integration
-│   ├── generator.py           # Legacy API (ReportGenerator)
+│   ├── pdf.py                 # PDF export utilities (zoom, optimize_images)
+│   ├── viewer.py              # Browser/PDF viewer integration (auto-cleanup)
 │   ├── exceptions.py          # Custom exceptions
 │   ├── templates/             # Built-in HTML templates
-│   │   ├── base.html, invoice.html, quote.html, receipt.html, delivery_note.html
+│   │   ├── base.html, report.html, invoice.html, quote.html, receipt.html, delivery_note.html
 │   ├── formats/               # Predefined formats
 │   │   ├── default/, corporate/, minimal/
 │   └── output/                # Generated files (auto-created)
 ├── examples/                  # Usage examples
-├── tests/                     # Unit tests
+├── tests/                     # Unit tests (assets, builder, cli, config, document, filters, generator, pdf, report, viewer)
 ├── pyproject.toml            # Project metadata
 └── README.md
 ```
@@ -78,6 +82,7 @@ jinjareportpy/                    # Project root
 | `JINJAREPORT_ORIENTATION` | Orientation (portrait, landscape) | `portrait` |
 | `JINJAREPORT_LOCALE` | Locale for formatting | `es_ES` |
 | `JINJAREPORT_PDF_ZOOM` | PDF zoom level | `1.0` |
+| `JINJAREPORT_PDF_OPTIMIZE_IMAGES` | Optimize images in PDF | `true` |
 | `JINJAREPORT_CONFIG_FILE` | Path to TOML config file | - |
 
 ### Config File (jinjareportpy.toml)
@@ -104,6 +109,8 @@ optimize_images = true
 
 ```bash
 python -m jinjareportpy [command] [options]
+# or after install:
+jinjareportpy [command] [options]
 ```
 
 | Command | Description |
@@ -113,6 +120,7 @@ python -m jinjareportpy [command] [options]
 | `config set <key> <value>` | Set configuration value |
 | `config reset` | Reset to defaults |
 | `config init` | Create jinjareportpy.toml |
+| `config init --force` | Overwrite existing config file |
 | `demo` | Generate demo report |
 | `demo --format corporate` | Demo with specific format |
 | `demo --pdf --open` | Generate PDF and open |
@@ -120,7 +128,11 @@ python -m jinjareportpy [command] [options]
 | `formats --details` | Show format files |
 | `templates` | List available templates |
 | `invoice -n <number>` | Generate invoice |
-| `quote -n <number>` | Generate quote |
+| `quote -n <number> [--validity N]` | Generate quote (validity in days) |
+| `receipt -n <number> [--amount N] [--concept]` | Generate receipt |
+| `delivery -n <number>` | Generate delivery note |
+
+Common document flags: `--company`, `--client`, `-o/--output`, `--pdf`, `--open`.
 
 ## Functions & Public API
 
@@ -129,7 +141,22 @@ python -m jinjareportpy [command] [options]
 ```python
 from jinjareportpy import Report, Document, Page, Section
 from jinjareportpy import TableSection, KPISection, TextSection, HeaderSection, FooterSection
-from jinjareportpy import ReportBuilder  # Fluent API
+from jinjareportpy import ReportBuilder, quick_report  # Fluent API
+from jinjareportpy import HeaderConfig, FooterConfig, TableConfig, KPIConfig, TextConfig  # Builder configs
+from jinjareportpy import PageLayout, ReportLayout  # Layout definitions
+from jinjareportpy import ReportConfig, PageSize, Orientation  # Config types
+from jinjareportpy import AssetManager, register_default_filters  # Utilities
+from jinjareportpy import check_weasyprint_available  # PDF availability check
+from jinjareportpy import JinjaReportError, TemplateNotFoundError, AssetNotFoundError, ExportError
+```
+
+### Document Data Classes
+
+```python
+from jinjareportpy import PartyInfo, InvoiceData, QuoteData, ReceiptData, DeliveryNoteData
+
+company = PartyInfo(name="Company", tax_id="B12345")
+data = InvoiceData(invoice_number="INV-001", company=company, client=PartyInfo(name="Client"), items=[...])
 ```
 
 ### Document Factory Functions
@@ -168,9 +195,12 @@ builder.export_pdf("report.pdf")
 from jinjareportpy import (
     JinjaReportConfig,
     set_output_dir, get_output_dir,
+    set_assets_dir, get_assets_dir,
     set_locale, get_locale,
-    set_page_size, set_orientation,
-    set_templates_dir, set_formats_dir,
+    set_page_size, get_page_size,
+    set_orientation, get_orientation,
+    set_templates_dir, get_templates_dir,
+    set_formats_dir, get_formats_dir,
 )
 
 set_output_dir("./reports")
@@ -191,10 +221,30 @@ set_default_format("corporate")
 ### Viewer Utilities
 
 ```python
-from jinjareportpy import open_in_browser, open_in_new_window, reset_viewer
+from jinjareportpy import open_in_browser, open_pdf_viewer
 
-open_in_browser("report.html")  # Smart: first=window, next=tabs
-reset_viewer()  # Next open = new window
+open_in_browser("report.html")  # Open in default browser
+open_pdf_viewer("report.pdf")   # Open PDF viewer
+
+# Additional viewer functions via submodule:
+# from jinjareportpy.viewer import ReportViewer, get_viewer, reset_viewer
+# from jinjareportpy.viewer import open_in_new_window, open_in_new_tab, get_available_browsers
+```
+
+### CLI Output Helpers (submodule)
+
+```python
+# Available via submodule import (not in top-level __all__):
+from jinjareportpy.cli.output import (
+    Colors, cprint, print_success, print_error, print_warning, print_info,
+    print_header, print_table, print_summary, print_progress, confirm_action,
+)
+
+# Reusable CLI base class for building custom CLIs:
+from jinjareportpy.cli.base import CLIBase, CLIConfig, Subcommand, create_cli
+
+# Or import from the cli package directly:
+from jinjareportpy.cli import CLIBase, Colors, cprint
 ```
 
 ## Development Workflow
@@ -206,6 +256,7 @@ uv sync
 # Install with optional features
 uv sync --extra pdf      # PDF support
 uv sync --extra pandas   # DataFrame support
+uv sync --extra gui      # GUI viewer (tkinterweb)
 uv sync --extra all      # All features
 uv sync --extra dev      # Development tools
 
@@ -236,6 +287,16 @@ python -m jinjareportpy invoice -n INV-001
 - **Report** → Multi-page reports with sections
 - **Section** → Modular content blocks with template + data + CSS
 
+### Security
+
+- **Template rendering**: Both `Document` and `Section` classes use `jinja2.sandbox.SandboxedEnvironment` to prevent SSTI (inline and file-based templates)
+- **Asset resolution**: `AssetManager.find_asset()` rejects absolute paths and `..` traversal — all assets must reside within configured asset directories
+- **Filter safety**: Non-numeric values in `format_number`/`format_percentage` and unparseable dates in `format_date` are logged via `logging.warning`
+- **Temp file cleanup**: `ReportViewer.cleanup()` removes temp HTML files; `open_content()` generates unique filenames (UUID suffix) to prevent collisions and data leaks between concurrent processes; the default viewer auto-cleans via `atexit`
+- **PDF error logging**: `html_to_pdf` logs full traceback via `logger.exception` before raising `PDFExportError`
+- **Config file discovery**: Priority is env var `JINJAREPORT_CONFIG_FILE` → CWD `jinjareportpy.toml` → package-relative default
+- **Locale-aware filters**: `format_number`/`format_currency` resolve separator defaults from `JinjaReportConfig.get_locale()` instead of hardcoded values
+
 ### Coding Standards
 
 - Python 3.10+ with type hints
@@ -265,16 +326,26 @@ python -m jinjareportpy invoice -n INV-001
 | File | Purpose |
 |------|---------|
 | `__init__.py` | Public API exports |
-| `cli.py` | CLI command handlers |
+| `cli/commands.py` | CLI parser, `main()` entry point, `cmd_*` handlers |
+| `cli/base.py` | `CLIBase` reusable class, `CLIConfig`, `Subcommand`, `create_cli` |
+| `cli/output.py` | Colored output helpers (Colors, cprint, print_*) |
 | `config.py` | `JinjaReportConfig` class, getters/setters |
-| `document.py` | `Document` class, factory functions |
+| `document.py` | `Document` class, data classes (PartyInfo, InvoiceData, etc.), factory functions |
 | `report.py` | `Report` class for multi-page reports |
 | `builder.py` | `ReportBuilder` fluent API |
 | `sections.py` | Section classes (Table, KPI, Text, Header, Footer) |
 | `base.py` | `BaseDocument` abstract base class |
+| `assets.py` | `AssetManager` — Base64 conversion, CSS reading |
+| `filters.py` | Jinja2 custom filters (currency, dates, numbers) |
+| `pdf.py` | PDF export via WeasyPrint |
+| `viewer.py` | `ReportViewer`, browser/PDF viewer integration |
+| `exceptions.py` | Custom exceptions hierarchy |
 | `formats/__init__.py` | Format loading and management |
+| `templates/report.html` | Multi-page report template |
 | `templates/invoice.html` | Invoice template |
 | `templates/quote.html` | Quote template |
+| `templates/receipt.html` | Receipt template |
+| `templates/delivery_note.html` | Delivery note template |
 
 ## Class Hierarchy
 
@@ -283,21 +354,28 @@ BaseDocument (ABC)
 ├── render() → str
 ├── render_css() → str
 ├── render_content() → str (abstract)
+├── get_base_css() → str
 ├── export_html(path) → Path
 ├── export_pdf(path) → Path
-└── preview() → None
+├── preview() → Path
+├── preview_pdf() → Path
+├── preview_embedded() → Any
+└── create_viewer_form() → Any
 
 ├── Document
 │   └── Template-based documents (invoice, quote, receipt, delivery_note)
 │
 └── Report
     ├── add_page() → Page
+    ├── get_page(index) → Page
     ├── pages: list[Page]
     └── global_css: str
         │
         └── Page
             ├── set_header() / set_footer()
             ├── add_section(Section)
+            ├── render() → str
+            ├── render_css() → str
             └── sections: list[Section]
                 │
                 └── Section (and subclasses)
@@ -306,6 +384,20 @@ BaseDocument (ABC)
                     ├── TextSection
                     ├── HeaderSection
                     └── FooterSection
+
+ReportBuilder
+├── header() / footer()
+├── add_table() / add_kpis() / add_text()
+├── add_section(Section) → ReportBuilder
+├── css(str) → ReportBuilder
+├── build() → Report
+├── render() → str
+├── render_inline() → str
+├── to_clipboard_html() → str
+├── export_html(path) → Path
+├── export_pdf(path) → Path
+├── preview() → Path
+└── from_data_layout(data, layout) → str  (classmethod)
 ```
 
 ## Quick Reference

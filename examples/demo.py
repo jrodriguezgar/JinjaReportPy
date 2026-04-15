@@ -13,54 +13,50 @@ To run:
 """
 
 from datetime import datetime
-from pathlib import Path
 
 from jinjareportpy import (
     # Base
-    BaseDocument,
-    # Documents
-    Document,
-    create_invoice,
-    create_quote,
-    create_receipt,
-    create_delivery_note,
+    KPISection,
     # Reports
     Report,
     Section,
     TableSection,
-    KPISection,
     TextSection,
+    create_delivery_note,
+    create_invoice,
+    create_quote,
+    create_receipt,
+    get_available_formats,
     # Formats
     set_default_format,
-    get_available_formats,
 )
 
 
 def main():
     """Generate a complete demo showing all capabilities."""
-    
+
     print("📄 JinjaReportPy - Complete Demo")
     print("=" * 50)
-    
+
     formats = get_available_formats()
     print(f"📁 Available formats: {', '.join(formats)}")
-    
+
     # Use default portable output directory (jinjareportpy/output)
     # No need to create it manually - ReportConfig does it automatically
     from jinjareportpy.config import ReportConfig
     output_dir = ReportConfig().output_dir
-    
+
     # =========================================================================
     # CREATE MULTI-PAGE REPORT
     # =========================================================================
     set_default_format("corporate")
     report = Report(title="📄 JinjaReportPy - Complete Demo")
-    
+
     # =========================================================================
     # PAGE 1: Simplified API (ReportBuilder)
     # =========================================================================
     print("\n📊 Page 1: Simplified API...")
-    
+
     page1 = report.add_page()
     page1.set_header(
         title="Simplified API",
@@ -72,14 +68,14 @@ def main():
         center_text="Confidential",
         right_text="Page 1 of 4",
     )
-    
+
     page1.add_section(TextSection(
         name="intro_simple",
         title="ReportBuilder: Reports in Few Lines",
         content="""
         <p>The <strong>Simplified API</strong> allows creating professional reports
         with very few lines of code using the <em>builder</em> pattern:</p>
-        
+
         <pre><code>builder = (
     ReportBuilder("Report", format_name="corporate")
     .header(title="Title", subtitle="Subtitle")
@@ -90,7 +86,7 @@ def main():
 builder.export_html("output.html")</code></pre>
         """,
     ))
-    
+
     page1.add_section(KPISection(
         name="kpis_example",
         title="Example: KPIs",
@@ -100,7 +96,7 @@ builder.export_html("output.html")</code></pre>
             {"label": "Conversion", "value": "4.2%", "change": "+0.5%"},
         ],
     ))
-    
+
     page1.add_section(TableSection(
         name="table_example",
         title="Example: Table",
@@ -112,12 +108,12 @@ builder.export_html("output.html")</code></pre>
         ],
         footer_row=["Total", "1,050", "$125,000"],
     ))
-    
+
     # =========================================================================
     # PAGE 2: Full Control API (Report + Sections)
     # =========================================================================
     print("📊 Page 2: Full Control API...")
-    
+
     set_default_format("default")
     page2 = report.add_page()
     page2.set_header(
@@ -128,14 +124,14 @@ builder.export_html("output.html")</code></pre>
         left_text="JinjaReportPy Demo",
         right_text="Page 2 of 4",
     )
-    
+
     page2.add_section(TextSection(
         name="intro_full",
         title="Total Control with Report + Sections",
         content="""
         <p>The <strong>Full Control API</strong> offers complete control over every aspect
         of the report, ideal for advanced use cases:</p>
-        
+
         <ul>
             <li><code>Report</code> - Container for pages</li>
             <li><code>Page</code> - Header + Footer + Sections</li>
@@ -144,7 +140,7 @@ builder.export_html("output.html")</code></pre>
         </ul>
         """,
     ))
-    
+
     page2.add_section(KPISection(
         name="sales_kpis",
         title="Q4 2025 Sales Metrics",
@@ -155,7 +151,7 @@ builder.export_html("output.html")</code></pre>
             {"label": "Conversion", "value": "23.4%", "change": 4.5},
         ],
     ))
-    
+
     page2.add_section(TableSection(
         name="product_sales",
         title="Sales by Product Line",
@@ -168,12 +164,12 @@ builder.export_html("output.html")</code></pre>
         ],
         footer_row=["TOTAL", "19,705", "$1,245,890", "100%", "+15%"],
     ))
-    
+
     # =========================================================================
     # PAGE 3: Custom Sections
     # =========================================================================
     print("📊 Page 3: Custom Sections...")
-    
+
     set_default_format("minimal")
     page3 = report.add_page()
     page3.set_header(
@@ -184,7 +180,7 @@ builder.export_html("output.html")</code></pre>
         left_text="JinjaReportPy Demo",
         right_text="Page 3 of 4",
     )
-    
+
     page3.add_section(TextSection(
         name="intro_custom",
         title="Section: Custom Template + CSS",
@@ -193,7 +189,7 @@ builder.export_html("output.html")</code></pre>
         <strong>Jinja2 template</strong> and <strong>CSS</strong>:</p>
         """,
     ))
-    
+
     # Custom section with own template and CSS
     page3.add_section(Section(
         name="achievements",
@@ -213,10 +209,14 @@ builder.export_html("output.html")</code></pre>
         """,
         data={
             "achievements": [
-                {"icon": "📈", "title": "Sales Record", "description": "Highest quarterly revenue in company history"},
-                {"icon": "🤝", "title": "New Partners", "description": "5 new strategic partnerships signed"},
-                {"icon": "⭐", "title": "Customer Satisfaction", "description": "NPS score of 72 points (+8 vs previous)"},
-                {"icon": "🚀", "title": "Efficiency", "description": "15% reduction in average sales cycle"},
+                {"icon": "📈", "title": "Sales Record",
+                 "description": "Highest quarterly revenue in company history"},
+                {"icon": "🤝", "title": "New Partners",
+                 "description": "5 new strategic partnerships signed"},
+                {"icon": "⭐", "title": "Customer Satisfaction",
+                 "description": "NPS score of 72 points (+8 vs previous)"},
+                {"icon": "🚀", "title": "Efficiency",
+                 "description": "15% reduction in average sales cycle"},
             ]
         },
         css="""
@@ -239,7 +239,7 @@ builder.export_html("output.html")</code></pre>
         .achievement-content p { margin: 5px 0 0 0; font-size: 9pt; color: #64748b; }
         """,
     ))
-    
+
     page3.add_section(TableSection(
         name="tasks",
         title="Sprint Status",
@@ -251,12 +251,12 @@ builder.export_html("output.html")</code></pre>
             ["E2E testing", "Pedro", "🔄 In progress"],
         ],
     ))
-    
+
     # =========================================================================
     # PAGE 4: Corporate Format + Action Plan
     # =========================================================================
     print("📊 Page 4: Corporate Format...")
-    
+
     set_default_format("corporate")
     page4 = report.add_page()
     page4.set_header(
@@ -269,7 +269,7 @@ builder.export_html("output.html")</code></pre>
         center_text="CONFIDENTIAL",
         right_text="Page 4 of 4",
     )
-    
+
     page4.add_section(KPISection(
         name="finance",
         title="Financial Indicators",
@@ -279,7 +279,7 @@ builder.export_html("output.html")</code></pre>
             {"label": "ROI", "value": "156%", "change": 12},
         ],
     ))
-    
+
     page4.add_section(TableSection(
         name="balance",
         title="Income Statement",
@@ -293,7 +293,7 @@ builder.export_html("output.html")</code></pre>
         ],
         footer_row=["Net Income", "$2,560,000", "$1,820,000", "+40.7%"],
     ))
-    
+
     page4.add_section(TableSection(
         name="action_plan",
         title="Q1 2026 Action Plan",
@@ -305,31 +305,31 @@ builder.export_html("output.html")</code></pre>
             ["Gold loyalty program", "Sales", "2026-03-15", "Medium"],
         ],
     ))
-    
+
     page4.add_section(TextSection(
         name="final_note",
         title="Director's Note",
         content="""
         <blockquote>
-        "This has been an exceptional quarter that demonstrates the commitment and talent 
+        "This has been an exceptional quarter that demonstrates the commitment and talent
         of our entire team. We look forward to 2026 with optimism and ambitious goals."
         </blockquote>
         <p style="text-align: right; font-style: italic;">— Maria Gonzalez, Sales Director</p>
         """,
     ))
-    
+
     # =========================================================================
     # EXPORT REPORT
     # =========================================================================
     output_file = output_dir / "demo_report.html"
     path = report.export_html(output_file)
     print(f"   ✓ Report: {path}")
-    
+
     # =========================================================================
     # DOCUMENTS: Invoices, Quotes, Receipts, Delivery Notes
     # =========================================================================
     print("\n📄 Generating Documents...")
-    
+
     # Common data
     company = {
         "name": "TechSolutions Inc.",
@@ -338,7 +338,7 @@ builder.export_html("output.html")</code></pre>
         "postal_code": "94102",
         "tax_id": "12-3456789",
     }
-    
+
     client = {
         "name": "Example Corp.",
         "address": "456 Main Avenue",
@@ -346,7 +346,7 @@ builder.export_html("output.html")</code></pre>
         "postal_code": "10001",
         "tax_id": "98-7654321",
     }
-    
+
     # 1. INVOICE
     invoice = create_invoice(
         invoice_number="INV-2026-001",
@@ -366,7 +366,7 @@ builder.export_html("output.html")</code></pre>
     )
     invoice_path = invoice.export_html(output_dir / "invoice.html")
     print(f"   ✓ Invoice: {invoice_path}")
-    
+
     # 2. QUOTE
     quote = create_quote(
         quote_number="QT-2026-015",
@@ -385,7 +385,7 @@ builder.export_html("output.html")</code></pre>
     )
     quote_path = quote.export_html(output_dir / "quote.html")
     print(f"   ✓ Quote: {quote_path}")
-    
+
     # 3. RECEIPT
     receipt = create_receipt(
         receipt_number="REC-2026-042",
@@ -398,24 +398,32 @@ builder.export_html("output.html")</code></pre>
     )
     receipt_path = receipt.export_html(output_dir / "receipt.html")
     print(f"   ✓ Receipt: {receipt_path}")
-    
+
     # 4. DELIVERY NOTE
     delivery = create_delivery_note(
         delivery_number="DN-2026-007",
         company=company,
         client=client,
         items=[
-            {"code": "HW-001", "description": "Dell PowerEdge R750 Server", "quantity": 2, "unit": "pcs"},
-            {"code": "HW-002", "description": "Cisco Catalyst 9300 Switch", "quantity": 1, "unit": "pcs"},
-            {"code": "HW-003", "description": "Cat6 Cable (meters)", "quantity": 100, "unit": "m"},
-            {"code": "SW-001", "description": "Windows Server 2022 License", "quantity": 2, "unit": "lic"},
+            {"code": "HW-001", "description": "Dell PowerEdge R750 Server",
+             "quantity": 2, "unit": "pcs"},
+            {"code": "HW-002", "description": "Cisco Catalyst 9300 Switch",
+             "quantity": 1, "unit": "pcs"},
+            {"code": "HW-003", "description": "Cat6 Cable (meters)",
+             "quantity": 100, "unit": "m"},
+            {"code": "SW-001", "description": "Windows Server 2022 License",
+             "quantity": 2, "unit": "lic"},
         ],
-        shipping_address="Data Center - 10 Server Street, New York 10001",
-        notes="Urgent delivery. Contact John Smith (ext. 234) for access.",
+        shipping_address=(
+            "Data Center - 10 Server Street, New York 10001"
+        ),
+        notes=(
+            "Urgent delivery. Contact John Smith (ext. 234) for access."
+        ),
     )
     delivery_path = delivery.export_html(output_dir / "delivery_note.html")
     print(f"   ✓ Delivery Note: {delivery_path}")
-    
+
     # =========================================================================
     # FINAL SUMMARY
     # =========================================================================
@@ -427,7 +435,7 @@ builder.export_html("output.html")</code></pre>
     print("   • quote.html         - Quote")
     print("   • receipt.html       - Receipt")
     print("   • delivery_note.html - Delivery Note")
-    
+
     # Open in browser
     import webbrowser
     print("\n🌐 Opening invoice in browser...")

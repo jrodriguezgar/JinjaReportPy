@@ -4,7 +4,7 @@
 
 Quick launcher for the project. Run with:
     uv run python main.py
-    
+
 Or directly:
     python main.py
 """
@@ -16,30 +16,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from jinjareportpy import (
-    # Documents
+    ReportBuilder,
     create_invoice,
     create_quote,
-    create_receipt,
-    create_delivery_note,
-    # Reports
-    Report,
-    ReportBuilder,
-    Section,
-    TableSection,
-    KPISection,
-    TextSection,
-    # Formats
-    set_default_format,
     get_available_formats,
+    get_formats_dir,
     # Config
     get_output_dir,
     get_templates_dir,
-    get_formats_dir,
     # Viewer
     open_in_browser,
     reset_viewer,
 )
-
 
 # =============================================================================
 # FEATURE DISPLAY FUNCTIONS
@@ -66,28 +54,28 @@ def show_project_overview() -> None:
     formats = get_available_formats()
     templates = get_templates()
     outputs = get_outputs()
-    
+
     print("""
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                        📊 PROJECT OVERVIEW                                ║
 ╠═══════════════════════════════════════════════════════════════════════════╣""")
-    
+
     # Formats section
     print("║                                                                           ║")
     print("║  🎨 FORMATS (styling themes)                                              ║")
     print("║  ─────────────────────────────────────────────────────────────────────    ║")
     format_list = "  •  ".join(formats) if formats else "(none)"
     print(f"║     {format_list:<66} ║")
-    print(f"║     📁 Location: jinjareportpy/formats/                                  ║")
-    
+    print("║     📁 Location: jinjareportpy/formats/                                  ║")
+
     # Templates section
     print("║                                                                           ║")
     print("║  📄 TEMPLATES (document types)                                            ║")
     print("║  ─────────────────────────────────────────────────────────────────────    ║")
     template_list = "  •  ".join(templates) if templates else "(none)"
     print(f"║     {template_list:<66} ║")
-    print(f"║     📁 Location: jinjareportpy/templates/                                ║")
-    
+    print("║     📁 Location: jinjareportpy/templates/                                ║")
+
     # Outputs section
     print("║                                                                           ║")
     print("║  📂 GENERATED FILES                                                       ║")
@@ -100,8 +88,8 @@ def show_project_overview() -> None:
             print(f"║     {line:<66} ║")
     else:
         print("║     (none - run demo to generate)                                        ║")
-    print(f"║     📁 Location: jinjareportpy/output/                                   ║")
-    
+    print("║     📁 Location: jinjareportpy/output/                                   ║")
+
     print("║                                                                           ║")
     print("╚═══════════════════════════════════════════════════════════════════════════╝")
 
@@ -110,10 +98,10 @@ def show_formats_detail() -> None:
     """Show detailed format information."""
     formats = get_available_formats()
     formats_dir = get_formats_dir()
-    
+
     print("\n🎨 AVAILABLE FORMATS")
     print("=" * 50)
-    
+
     for fmt in formats:
         fmt_path = formats_dir / fmt
         if fmt_path.exists():
@@ -121,7 +109,7 @@ def show_formats_detail() -> None:
             print(f"\n  📁 {fmt}/")
             for comp in sorted(components):
                 print(f"      • {comp}.html + {comp}.css")
-    
+
     print(f"\n📍 Formats directory: {formats_dir}")
 
 
@@ -129,10 +117,10 @@ def show_templates_detail() -> None:
     """Show detailed template information."""
     templates = get_templates()
     templates_dir = get_templates_dir()
-    
+
     print("\n📄 AVAILABLE TEMPLATES")
     print("=" * 50)
-    
+
     descriptions = {
         "invoice": "Commercial invoice with items, taxes, and payment info",
         "quote": "Price quotation with validity period",
@@ -140,12 +128,12 @@ def show_templates_detail() -> None:
         "delivery_note": "Delivery/shipping document",
         "report": "Multi-section report with KPIs, tables, text",
     }
-    
+
     for tmpl in templates:
         desc = descriptions.get(tmpl, "Custom template")
         print(f"\n  📄 {tmpl}.html")
         print(f"      {desc}")
-    
+
     print(f"\n📍 Templates directory: {templates_dir}")
 
 
@@ -153,23 +141,23 @@ def show_outputs_detail() -> None:
     """Show generated outputs with option to open."""
     outputs = get_outputs()
     output_dir = get_output_dir()
-    
+
     if not outputs:
         print("\n❌ No generated files found.")
         print("   Run demo first to generate sample documents.")
         return
-    
+
     print("\n📂 GENERATED FILES")
     print("=" * 50)
-    
+
     for i, f in enumerate(outputs, 1):
         file_path = output_dir / f
         size_kb = file_path.stat().st_size / 1024
         print(f"   [{i:2}] {f:<30} ({size_kb:.1f} KB)")
-    
-    print(f"\n   [a] Open ALL  |  [0] Back")
+
+    print("\n   [a] Open ALL  |  [0] Back")
     print(f"\n📍 Output directory: {output_dir}")
-    
+
     try:
         choice = input("\n👉 Choose file to open [1-N, a, 0]: ").strip().lower()
         if choice == "0":
@@ -213,7 +201,7 @@ def confirm(message: str) -> bool:
 def ask_view_file(file_path) -> None:
     """Ask if user wants to view the generated file in browser."""
     try:
-        response = input(f"\n🌐 Open in browser? [Y/n]: ").strip().lower()
+        response = input("\n🌐 Open in browser? [Y/n]: ").strip().lower()
         if response in ("", "y", "yes"):
             print(f"   Opening {file_path.name}...")
             open_in_browser(html_path=file_path)
@@ -228,9 +216,9 @@ def demo_quick_report(skip_confirm: bool = False, ask_view: bool = True) -> None
         if not confirm(f"Generate report {filename}?"):
             print("   ⏭️  Skipped")
             return
-    
+
     print("\n📊 Generating report...")
-    
+
     builder = (
         ReportBuilder("Sales Report Q4 2025", format_name="corporate")
         .header(title="Sales Report", subtitle="Fourth Quarter 2025")
@@ -251,7 +239,7 @@ def demo_quick_report(skip_confirm: bool = False, ask_view: bool = True) -> None
         )
         .add_text("notes", "Report generated automatically with JinjaReportPy.")
     )
-    
+
     output_path = builder.export_html("demo_report.html")
     print(f"   ✅ Generated: {output_path}")
     if ask_view:
@@ -265,9 +253,9 @@ def demo_invoice(skip_confirm: bool = False, ask_view: bool = True) -> None:
         if not confirm(f"Generate invoice {filename}?"):
             print("   ⏭️  Skipped")
             return
-    
+
     print("\n📄 Generating invoice...")
-    
+
     invoice = create_invoice(
         invoice_number="INV-2025-001",
         company={
@@ -294,7 +282,7 @@ def demo_invoice(skip_confirm: bool = False, ask_view: bool = True) -> None:
             "terms": "Net 30 days",
         },
     )
-    
+
     output_path = invoice.export_html("invoice.html")
     print(f"   ✅ Generated: {output_path}")
     if ask_view:
@@ -308,9 +296,9 @@ def demo_quote(skip_confirm: bool = False, ask_view: bool = True) -> None:
         if not confirm(f"Generate quote {filename}?"):
             print("   ⏭️  Skipped")
             return
-    
+
     print("\n📋 Generating quote...")
-    
+
     quote = create_quote(
         quote_number="QT-2025-015",
         company={"name": "My Company Ltd.", "tax_id": "GB123456789"},
@@ -322,7 +310,7 @@ def demo_quote(skip_confirm: bool = False, ask_view: bool = True) -> None:
         validity_days=30,
         notes="This quote is valid for 30 days from the date of issue.",
     )
-    
+
     output_path = quote.export_html("quote.html")
     print(f"   ✅ Generated: {output_path}")
     if ask_view:
@@ -402,7 +390,7 @@ def interactive_menu() -> None:
         except (EOFError, KeyboardInterrupt):
             print("\n👋 Goodbye!")
             break
-        
+
         if choice == "0":
             print("\n👋 Goodbye!")
             break
@@ -438,7 +426,7 @@ def interactive_menu() -> None:
             show_help()
         else:
             print(f"\n❌ Invalid option: {choice}")
-        
+
         input("\n⏎ Press Enter to continue...")
 
 
@@ -449,15 +437,15 @@ def main() -> None:
     print("║  📄 JinjaReportPy - Document Generator          ║")
     print("║     Reports  •  Invoices  •  Quotes             ║")
     print("╚═════════════════════════════════════════════════╝")
-    
+
     # No arguments = interactive menu
     if len(sys.argv) == 1:
         interactive_menu()
         return
-    
+
     # Parse command line arguments
     command = sys.argv[1].lower()
-    
+
     def run_demo() -> None:
         files = ["demo_report.html", "invoice.html", "quote.html"]
         all_exist = all(file_exists(f) for f in files)
@@ -469,7 +457,7 @@ def main() -> None:
             show_outputs_detail()  # Let user choose which to view
         else:
             print("   ⏭️  Cancelled")
-    
+
     commands = {
         # Explore
         "overview": show_project_overview,
@@ -485,7 +473,7 @@ def main() -> None:
         "help": show_help,
         "view": show_outputs_detail,  # alias
     }
-    
+
     if command in commands:
         commands[command]()
     else:

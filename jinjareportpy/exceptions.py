@@ -1,13 +1,13 @@
-"""Excepciones personalizadas para JinjaReportPy."""
+"""Custom exceptions for JinjaReportPy."""
 
 
-class NinjaReportError(Exception):
-    """Excepción base para todos los errores de JinjaReportPy."""
+class JinjaReportError(Exception):
+    """Base exception for all JinjaReportPy errors."""
 
     pass
 
 
-class TemplateNotFoundError(NinjaReportError):
+class TemplateNotFoundError(JinjaReportError):
     """Raised when a template file cannot be found."""
 
     def __init__(self, template_name: str, search_paths: list[str] | None = None):
@@ -17,7 +17,7 @@ class TemplateNotFoundError(NinjaReportError):
         super().__init__(f"Template '{template_name}' not found{paths_info}")
 
 
-class AssetNotFoundError(NinjaReportError):
+class AssetNotFoundError(JinjaReportError):
     """Raised when an asset (image, CSS, etc.) cannot be found."""
 
     def __init__(self, asset_path: str):
@@ -25,7 +25,7 @@ class AssetNotFoundError(NinjaReportError):
         super().__init__(f"Asset not found: '{asset_path}'")
 
 
-class ExportError(NinjaReportError):
+class ExportError(JinjaReportError):
     """Raised when export operation fails."""
 
     def __init__(self, message: str, original_error: Exception | None = None):
@@ -39,7 +39,7 @@ class PDFExportError(ExportError):
     pass
 
 
-class ViewerError(NinjaReportError):
+class ViewerError(JinjaReportError):
     """Raised when opening a viewer fails."""
 
     pass

@@ -8,14 +8,15 @@ and data. If not provided, uses the active format's defaults.
 from dataclasses import dataclass, field
 from typing import Any
 
-from jinja2 import Template
+from jinja2.sandbox import SandboxedEnvironment
 
+from .filters import register_default_filters
 from .formats import (
-    get_header_template,
     get_footer_template,
+    get_header_template,
+    get_kpi_template,
     get_section_template,
     get_table_template,
-    get_kpi_template,
     get_text_template,
 )
 
@@ -43,7 +44,7 @@ class Section:
     Example:
         >>> # Using default format
         >>> section = Section(name="intro", data={"title": "Intro", "content": "..."})
-        
+
         >>> # With custom template and CSS
         >>> section = Section(
         ...     name="custom",
@@ -71,14 +72,18 @@ class Section:
             Rendered HTML string for the section.
         """
         # Get template (custom or from format)
+        # None = not specified → fallback to format default
+        # ""  = explicitly empty → render nothing
         template_str = self.template
-        if not template_str:
+        if template_str is None:
             template_str, _ = self._get_default_template_css()
-        
+
         if not template_str:
             return ""
 
-        jinja_template = Template(template_str)
+        env = SandboxedEnvironment(autoescape=False)
+        register_default_filters(env)
+        jinja_template = env.from_string(template_str)
         content = jinja_template.render(**self.data)
 
         # Build CSS class string
@@ -99,7 +104,7 @@ class Section:
         css_content = self.css
         if css_content is None:
             _, css_content = self._get_default_template_css()
-        
+
         if not css_content:
             return ""
         return f"/* Section: {self.name} */\n{css_content}"
@@ -114,7 +119,7 @@ class Section:
 
 class HeaderSection(Section):
     """Predefined header section.
-    
+
     Uses the active format's template/CSS if not provided.
     """
 
@@ -130,7 +135,7 @@ class HeaderSection(Section):
         format_name: str | None = None,
     ):
         """Initialize a header section.
-        
+
         Args:
             title: Main header title.
             subtitle: Subtitle text.
@@ -165,7 +170,7 @@ class HeaderSection(Section):
 
 class FooterSection(Section):
     """Predefined footer section.
-    
+
     Uses the active format's template/CSS if not provided.
     Supports left, center, and right text areas.
     """
@@ -181,7 +186,7 @@ class FooterSection(Section):
         format_name: str | None = None,
     ):
         """Initialize a footer section.
-        
+
         Args:
             left_text: Left-aligned footer text.
             right_text: Right-aligned footer text.
@@ -214,7 +219,7 @@ class FooterSection(Section):
 
 class TableSection(Section):
     """Predefined table section.
-    
+
     Uses the active format's template/CSS if not provided.
     Supports headers, data rows, and an optional footer row.
     """
@@ -226,22 +231,24 @@ class TableSection(Section):
         rows: list[list[Any]],
         title: str = "",
         footer_row: list[Any] | None = None,
+        data: dict[str, Any] | None = None,
         template: str | None = None,
         css: str | None = None,
         format_name: str | None = None,
     ):
         """Initialize a table section.
-        
+
         Args:
             name: Unique identifier for the table.
             headers: List of column header strings.
             rows: List of rows (each row is a list of cell values).
             title: Optional table title.
             footer_row: Optional footer row (e.g., totals).
+            data: Additional data for the template.
             template: Custom HTML template (None = use format).
             css: Custom CSS (None = use format).
             format_name: Specific format name (None = active format).
-        
+
         Example:
             >>> table = TableSection(
             ...     name="sales",
@@ -254,15 +261,19 @@ class TableSection(Section):
             ...     footer_row=["Total", 300, "£3,000"],
             ... )
         """
+        default_data = {
+            "title": title,
+            "headers": headers,
+            "rows": rows,
+            "footer_row": footer_row,
+        }
+        if data:
+            default_data.update(data)
+
         super().__init__(
             name=name,
             template=template,
-            data={
-                "title": title,
-                "headers": headers,
-                "rows": rows,
-                "footer_row": footer_row,
-            },
+            data=default_data,
             css=css,
             css_class="table",
             format_name=format_name,
@@ -275,7 +286,7 @@ class TableSection(Section):
 
 class TextSection(Section):
     """Predefined text section.
-    
+
     Uses the active format's template/CSS if not provided.
     Supports HTML content.
     """
@@ -285,20 +296,22 @@ class TextSection(Section):
         name: str,
         content: str,
         title: str = "",
+        data: dict[str, Any] | None = None,
         template: str | None = None,
         css: str | None = None,
         format_name: str | None = None,
     ):
         """Initialize a text section.
-        
+
         Args:
             name: Unique identifier for the section.
             content: Text content (can include HTML).
             title: Optional section title.
+            data: Additional data for the template.
             template: Custom HTML template (None = use format).
             css: Custom CSS (None = use format).
             format_name: Specific format name (None = active format).
-        
+
         Example:
             >>> text = TextSection(
             ...     name="notes",
@@ -306,10 +319,14 @@ class TextSection(Section):
             ...     title="Notes",
             ... )
         """
+        default_data = {"title": title, "content": content}
+        if data:
+            default_data.update(data)
+
         super().__init__(
             name=name,
             template=template,
-            data={"title": title, "content": content},
+            data=default_data,
             css=css,
             css_class="text",
             format_name=format_name,
@@ -322,7 +339,7 @@ class TextSection(Section):
 
 class KPISection(Section):
     """Predefined KPI (Key Performance Indicator) section.
-    
+
     Uses the active format's template/CSS if not provided.
     Displays metrics with optional change indicators.
     """
@@ -332,12 +349,13 @@ class KPISection(Section):
         name: str,
         kpis: list[dict[str, Any]],
         title: str = "",
+        data: dict[str, Any] | None = None,
         template: str | None = None,
         css: str | None = None,
         format_name: str | None = None,
     ):
         """Initialize a KPI section.
-        
+
         Args:
             name: Unique identifier for the section.
             kpis: List of KPI dictionaries, each containing:
@@ -347,10 +365,11 @@ class KPISection(Section):
                 - description (str, optional): Additional description
                 - color_class (str, optional): CSS color class
             title: Optional section title.
+            data: Additional data for the template.
             template: Custom HTML template (None = use format).
             css: Custom CSS (None = use format).
             format_name: Specific format name (None = active format).
-        
+
         Example:
             >>> kpis = KPISection(
             ...     name="metrics",
@@ -361,10 +380,14 @@ class KPISection(Section):
             ...     title="Key Metrics",
             ... )
         """
+        default_data = {"title": title, "kpis": kpis}
+        if data:
+            default_data.update(data)
+
         super().__init__(
             name=name,
             template=template,
-            data={"title": title, "kpis": kpis},
+            data=default_data,
             css=css,
             css_class="kpi",
             format_name=format_name,

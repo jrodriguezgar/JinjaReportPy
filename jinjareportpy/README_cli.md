@@ -675,7 +675,7 @@ else:
 
 ### cprint
 
-Public colored print helper (same as internal `_cprint`):
+Public colored print helper:
 
 ```python
 from jinjareportpy.cli import cprint, Colors
@@ -713,6 +713,28 @@ cprint("Muted text", Colors.MUTED)
 | `CLIConfig` | Dataclass for CLI configuration |
 | `Subcommand` | Dataclass for subcommand definitions |
 | `Colors` | ANSI color constants with Windows support |
+
+### CLIBase Methods
+
+| Method | Description |
+|--------|-------------|
+| `init_subcommands(title, dest)` | Initialize subcommand support |
+| `add_subcommand(name, help, handler, aliases)` | Register a subcommand, returns its `ArgumentParser` |
+| `set_handler(command, handler)` | Set or update the handler for an existing subcommand |
+| `run()` | Execute the handler for the parsed subcommand |
+| `add_group(name, title, description)` | Add a custom argument group to the root parser |
+| `add_database_connection_group()` | Add database connection arguments |
+| `add_ldap_connection_group()` | Add LDAP / Active Directory connection arguments |
+| `add_api_connection_group()` | Add REST API connection arguments |
+| `add_export_group(formats)` | Add export configuration arguments |
+| `add_import_group(formats)` | Add import configuration arguments |
+| `add_sync_group()` | Add synchronization configuration arguments |
+| `parse_args(args)` | Parse command-line arguments and configure logging |
+| `increment_stat(key, amount)` | Increment a statistic counter |
+| `get_elapsed_time()` | Return elapsed time as a human-readable string |
+| `print_final_summary()` | Print execution summary including elapsed time |
+| `exit_with_error(message, code)` | Print error message and `sys.exit(code)` |
+| `exit_success(message)` | Print optional success message and `sys.exit(0)` |
 
 ### Enums
 

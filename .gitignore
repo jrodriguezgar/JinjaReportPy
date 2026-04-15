@@ -195,7 +195,53 @@ cython_debug/
 
 # Excluir directorios de proyecto, tests y documentación
 **/secrets.*
-.github/
+.vscode/
+project_structure.txt
+
+# GitHub - ignore internal tooling, keep community files
+.github/agents/
+.github/hooks/
+.github/skills/
+.github/prompts/
+.github/instructions/
+
+# Secrets & certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Infrastructure secrets
+*.tfvars
+*.tfstate
+*.tfstate.backup
+
+# Databases
+*.db
+*.sqlite
+
+# Environment variants
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+ToDo/
+
+#my files ->
+# Excluir directorios de proyecto, tests y documentación
+# GitHub Copilot / internal config (not published)
+.github/agents/
+.github/hooks/
+.github/instructions/
+.github/prompts/
+.github/skills/
+.github/copilot-instructions.md
+# Keep published: .github/workflows/, .github/ISSUE_TEMPLATE/, .github/PULL_REQUEST_TEMPLATE.md
 .vscode/
 project_structure.txt
 pyproject.toml

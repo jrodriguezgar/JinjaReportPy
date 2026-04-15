@@ -1,126 +1,102 @@
 """
-📄 JinjaReportPy - Generador Programático de Documentos e Informes.
+JinjaReportPy - Programmatic Document & Report Generator.
 
-Módulo Python para generar informes multipágina y documentos profesionales
-con secciones dinámicas, CSS personalizado y exportación PDF.
+Python module for generating multi-page reports and professional documents
+with dynamic sections, custom CSS, and PDF export.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "JinjaReportPy Team"
 
 # Base class
+# Utilities
+from .assets import AssetManager
 from .base import BaseDocument
-
-# Core classes
-from .report import Report
-from .document import (
-    Document,
-    create_invoice,
-    create_quote,
-    create_receipt,
-    create_delivery_note,
-)
-from .page import Page
-from .sections import (
-    Section,
-    HeaderSection,
-    FooterSection,
-    TableSection,
-    TextSection,
-    KPISection,
-)
 
 # Builder API (simplified)
 from .builder import (
-    ReportBuilder,
-    HeaderConfig,
     FooterConfig,
-    TableConfig,
+    HeaderConfig,
     KPIConfig,
-    TextConfig,
     PageLayout,
+    ReportBuilder,
     ReportLayout,
+    TableConfig,
+    TextConfig,
     quick_report,
-)
-
-# Formats
-from .formats import (
-    set_default_format,
-    get_default_format,
-    get_available_formats,
 )
 
 # Configuration
 from .config import (
-    ReportConfig,
-    PageSize,
-    Orientation,
     JinjaReportConfig,
-    get_templates_dir,
-    set_templates_dir,
-    get_formats_dir,
-    set_formats_dir,
-    get_output_dir,
-    set_output_dir,
+    Orientation,
+    PageSize,
+    ReportConfig,
     get_assets_dir,
-    set_assets_dir,
+    get_formats_dir,
     get_locale,
-    set_locale,
-    get_page_size,
-    set_page_size,
     get_orientation,
+    get_output_dir,
+    get_page_size,
+    get_templates_dir,
+    set_assets_dir,
+    set_formats_dir,
+    set_locale,
     set_orientation,
+    set_output_dir,
+    set_page_size,
+    set_templates_dir,
 )
-
-# Utilities
-from .assets import AssetManager
-from .filters import register_default_filters
-
-# Viewer utilities
-from .viewer import (
-    ReportViewer,
-    get_viewer,
-    reset_viewer,
-    open_in_browser,
-    open_in_new_window,
-    open_in_new_tab,
-    open_pdf_viewer,
-    get_available_browsers,
+from .document import (
+    DeliveryNoteData,
+    Document,
+    InvoiceData,
+    PartyInfo,
+    QuoteData,
+    ReceiptData,
+    create_delivery_note,
+    create_invoice,
+    create_quote,
+    create_receipt,
 )
 
 # Exceptions
 from .exceptions import (
-    NinjaReportError,
-    TemplateNotFoundError,
     AssetNotFoundError,
     ExportError,
+    JinjaReportError,
+    TemplateNotFoundError,
+)
+from .filters import register_default_filters
+
+# Formats
+from .formats import (
+    get_available_formats,
+    get_default_format,
+    set_default_format,
+)
+from .page import Page
+from .pdf import check_weasyprint_available
+
+# Core classes
+from .report import Report
+from .sections import (
+    FooterSection,
+    HeaderSection,
+    KPISection,
+    Section,
+    TableSection,
+    TextSection,
 )
 
-# CLI
-from .cli import (
-    main as cli_main,
-    Colors,
-    cprint,
-    print_success,
-    print_error,
-    print_warning,
-    print_info,
-    print_header,
-    print_table,
-    print_summary,
-    print_progress,
-    confirm_action,
-    # Reusable CLI base
-    CLIBase,
-    CLIConfig,
-    Subcommand,
-    OutputFormat,
-    LogLevel,
-    create_cli,
-)
+# Viewer utilities
+from .viewer import open_in_browser, open_pdf_viewer
 
-# Legacy - kept for compatibility
-from .generator import ReportGenerator
+# CLI entry point
+try:
+    from .cli import main as cli_main
+except ImportError:
+    cli_main = None
 
 __all__ = [
     # Base
@@ -135,6 +111,12 @@ __all__ = [
     "create_quote",
     "create_receipt",
     "create_delivery_note",
+    # Document data classes
+    "PartyInfo",
+    "InvoiceData",
+    "QuoteData",
+    "ReceiptData",
+    "DeliveryNoteData",
     # Predefined sections
     "HeaderSection",
     "FooterSection",
@@ -166,42 +148,24 @@ __all__ = [
     "set_formats_dir",
     "get_output_dir",
     "set_output_dir",
+    "get_assets_dir",
+    "set_assets_dir",
+    "get_locale",
+    "set_locale",
+    "get_page_size",
+    "set_page_size",
+    "get_orientation",
+    "set_orientation",
     # Utilities
     "AssetManager",
     "register_default_filters",
-    # Viewer utilities
-    "ReportViewer",
-    "get_viewer",
-    "reset_viewer",
+    "check_weasyprint_available",
+    # Viewer (shortcuts)
     "open_in_browser",
-    "open_in_new_window",
-    "open_in_new_tab",
     "open_pdf_viewer",
-    "get_available_browsers",
-    # Legacy
-    "ReportGenerator",
     # Exceptions
-    "NinjaReportError",
+    "JinjaReportError",
     "TemplateNotFoundError",
     "AssetNotFoundError",
     "ExportError",
-    # CLI utilities
-    "Colors",
-    "cprint",
-    "print_success",
-    "print_error",
-    "print_warning",
-    "print_info",
-    "print_header",
-    "print_table",
-    "print_summary",
-    "print_progress",
-    "confirm_action",
-    # Reusable CLI base
-    "CLIBase",
-    "CLIConfig",
-    "Subcommand",
-    "OutputFormat",
-    "LogLevel",
-    "create_cli",
 ]
