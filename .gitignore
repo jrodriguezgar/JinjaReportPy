@@ -198,21 +198,6 @@ cython_debug/
 .vscode/
 project_structure.txt
 
-# GitHub - ignore internal tooling, keep community files
-.github/agents/
-.github/hooks/
-.github/skills/
-.github/prompts/
-.github/instructions/
-
-# Secrets & certificates
-*.pem
-*.key
-*.p12
-*.pfx
-*.crt
-*.cer
-
 # Infrastructure secrets
 *.tfvars
 *.tfstate
@@ -230,7 +215,23 @@ project_structure.txt
 .DS_Store
 Thumbs.db
 Desktop.ini
-ToDo/
+
+# ── .github: only GitHub-essential files ─────────────────────────────
+.github/*
+!.github/workflows/
+!.github/ISSUE_TEMPLATE/
+!.github/PULL_REQUEST_TEMPLATE.md
+!.github/copilot-instructions.mdç
+
+# GitHub Copilot / internal config (not published)
+# Keep published: .github/workflows/, .github/ISSUE_TEMPLATE/, .github/PULL_REQUEST_TEMPLATE.md
+.github/agents/
+.github/hooks/
+.github/instructions/
+.github/prompts/
+.github/skills/
+.github/copilot-instructions.md
+
 
 #my files ->
 # Excluir directorios de proyecto, tests y documentación
@@ -261,3 +262,11 @@ ToDo/
 **/*secret*.json
 **/*secret*.toml
 **/*secret*.cfg
+
+# Secrets & certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
