@@ -1,6 +1,6 @@
 # Features
 
-Complete feature list for JinjaReportPy v0.1.0.
+Complete feature list for JinjaReportPy v0.2.0.
 
 ## Document Generation
 
@@ -26,6 +26,7 @@ Complete feature list for JinjaReportPy v0.1.0.
 | Table sections | `sections.py` | `TableSection` |
 | KPI sections | `sections.py` | `KPISection` |
 | Text sections | `sections.py` | `TextSection` |
+| Chart sections (matplotlib SVG) | `sections.py` | `ChartSection` |
 | Custom sections (template + data + CSS) | `sections.py` | `Section` |
 
 ## Builder API (Fluent Interface)
@@ -36,6 +37,7 @@ Complete feature list for JinjaReportPy v0.1.0.
 | Quick report from data + layout | `builder.py` | `quick_report()` |
 | Header/footer configuration | `builder.py` | `HeaderConfig`, `FooterConfig` |
 | Table/KPI/text configuration | `builder.py` | `TableConfig`, `KPIConfig`, `TextConfig` |
+| Chart addition (matplotlib) | `builder.py` | `ReportBuilder.add_chart()` |
 | Page/report layout definitions | `builder.py` | `PageLayout`, `ReportLayout` |
 
 ## Export & Preview
@@ -142,3 +144,15 @@ Each format includes templates and CSS for: header, footer, section, table, kpi,
 | `pandas` | Pandas ≥2.0.0 | DataFrame integration |
 | `gui` | tkinterweb ≥3.0.0 | Embedded GUI viewer |
 | `all` | All of the above | Full installation |
+
+## Integration with OfficeBridge
+
+| Feature | Package | Description |
+|---------|---------|-------------|
+| HTML → Word (.docx) | [OfficeBridge](https://github.com/jrodriguezgar/OfficeBridge) | Convert HTML report to Microsoft Word |
+| HTML → PDF (.pdf) | [OfficeBridge](https://github.com/jrodriguezgar/OfficeBridge) | Alternative PDF conversion (without WeasyPrint) |
+| HTML → Markdown (.md) | [OfficeBridge](https://github.com/jrodriguezgar/OfficeBridge) | Convert HTML report to Markdown |
+| HTML → Text (.txt) | [OfficeBridge](https://github.com/jrodriguezgar/OfficeBridge) | Convert HTML report to plain text |
+| Data → Excel (.xlsx) | [OfficeBridge](https://github.com/jrodriguezgar/OfficeBridge) | Export structured data to Excel workbook |
+
+OfficeBridge is an external companion library (`pip install officebridge`) that provides `DocumentConverter.convert()` for format conversion and `ExcelClient` for spreadsheet generation.

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- `ChartSection`: New section type that renders matplotlib Figures as inline SVG in reports
+- `ReportBuilder.add_chart()`: Fluent method to add matplotlib charts to reports
+- `pyproject.toml`: New optional dependency group `charts` (`matplotlib>=3.7.0`)
+- Chart format templates (`chart.html` + `chart.css`) for default, corporate, and minimal formats
+- `FEATURES.md`: Add "Integration with OfficeBridge" section documenting HTML → Word/PDF/Markdown/Text/Excel conversion
+- `llms.txt`: Add OfficeBridge integration section with conversion table and quick-reference code snippet
+- `README.md`: Add "Integration with OfficeBridge" section with usage examples for DocumentConverter and ExcelClient
+
+---
+
 ## [0.2.0] — 2026-04-15
 
 Open-source readiness release — community files, CI/CD, security hardening, lint cleanup, and packaging configuration.

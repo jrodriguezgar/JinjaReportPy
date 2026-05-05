@@ -12,6 +12,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from markupsafe import escape as _escape_html
+
 from .config import JinjaReportConfig, ReportConfig
 from .exceptions import ExportError, ViewerError
 from .pdf import check_weasyprint_available, html_to_pdf
@@ -209,7 +211,7 @@ class BaseDocument(ABC):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{self.title}</title>
+    <title>{_escape_html(self.title)}</title>
     <style>
 {all_css}
     </style>

@@ -562,17 +562,17 @@ invoice.export_html()  # Uses config.output_dir / "document.html"
 
 #### ReportConfig Options
 
-| Parameter            | Type              | Default        | Description                                |
-| -------------------- | ----------------- | -------------- | ------------------------------------------ |
-| `output_dir`       | `Path`          | `./output`   | Default directory for generated files      |
-| `template_dirs`    | `list[Path]`    | `[]`         | Custom template directories                |
-| `assets_dir`       | `Path \| None`  | `None`       | Directory for images/logos/assets          |
-| `page_size`        | `PageSize`      | `A4`         | Page size for PDF (A4, A3, LETTER, LEGAL) |
-| `orientation`      | `Orientation`   | `PORTRAIT`   | Page orientation (PORTRAIT, LANDSCAPE)     |
-| `encoding`         | `str`           | `"utf-8"`    | Character encoding                         |
-| `locale`           | `str`           | `"es_ES"`    | Locale for formatting (es_ES, en_US, etc.) |
-| `browser_command`  | `str \| None`   | `None`       | Custom browser command for preview         |
-| `pdf_viewer_command` | `str \| None` | `None`       | Custom PDF viewer command                  |
+| Parameter              | Type            | Default      | Description                                |
+| ---------------------- | --------------- | ------------ | ------------------------------------------ |
+| `output_dir`         | `Path`        | `./output` | Default directory for generated files      |
+| `template_dirs`      | `list[Path]`  | `[]`       | Custom template directories                |
+| `assets_dir`         | `Path \| None` | `None`     | Directory for images/logos/assets          |
+| `page_size`          | `PageSize`    | `A4`       | Page size for PDF (A4, A3, LETTER, LEGAL)  |
+| `orientation`        | `Orientation` | `PORTRAIT` | Page orientation (PORTRAIT, LANDSCAPE)     |
+| `encoding`           | `str`         | `"utf-8"`  | Character encoding                         |
+| `locale`             | `str`         | `"es_ES"`  | Locale for formatting (es_ES, en_US, etc.) |
+| `browser_command`    | `str \| None`  | `None`     | Custom browser command for preview         |
+| `pdf_viewer_command` | `str \| None`  | `None`     | Custom PDF viewer command                  |
 
 **Example:**
 
@@ -749,6 +749,59 @@ builder.add_table_from_dataframe("sales", df, title="Product Sales")
 builder.export_pdf("report.pdf")
 ```
 
+### Integration with OfficeBridge
+
+JinjaReportPy generates HTML reports that can be converted to other formats (PDF, Word, Excel) using [OfficeBridge](https://github.com/jrodriguezgar/OfficeBridge) — a companion library for Microsoft Office automation and document format conversion.
+
+OfficeBridge's `DocumentConverter` supports HTML as a source format, enabling a full pipeline: **generate HTML with JinjaReportPy → convert to Word/PDF/Markdown/Text with OfficeBridge**.
+
+```bash
+pip install officebridge
+```
+
+```python
+from jinjareportpy import ReportBuilder
+from officebridge.gears.converter_doc import DocumentConverter
+
+# 1. Generate the HTML report with JinjaReportPy
+builder = (
+    ReportBuilder("Sales Report", format_name="corporate")
+    .header(title="Q4 Report", subtitle="2026")
+    .footer(left="Company Ltd.", right="Page 1")
+    .add_kpis("metrics", [
+        {"label": "Revenue", "value": "€125K", "change": "+15%"},
+        {"label": "Orders", "value": "1,234", "change": "+8%"},
+    ])
+    .add_table("data",
+        headers=["Product", "Units", "Revenue"],
+        rows=[["Product A", "150", "€15,000"], ["Product B", "230", "€23,000"]],
+    )
+)
+builder.export_html("report.html")
+
+# 2. Convert HTML to other formats with OfficeBridge
+DocumentConverter.convert("report.html", "report.docx")   # → Word
+DocumentConverter.convert("report.html", "report.pdf")    # → PDF
+DocumentConverter.convert("report.html", "report.md")     # → Markdown
+```
+
+For Excel output, use OfficeBridge's `ExcelClient` to write structured data directly:
+
+```python
+from officebridge.excel import ExcelClient
+
+# Export report data to Excel
+client = ExcelClient("report.xlsx")
+client.write_headers(["Product", "Units", "Revenue"], row=1)
+client.write_rows([
+    ["Product A", 150, 15000],
+    ["Product B", 230, 23000],
+], start_row=2)
+client.save()
+```
+
+> **Note**: JinjaReportPy's built-in `export_pdf()` uses WeasyPrint for high-fidelity PDF rendering with full CSS support. OfficeBridge provides an alternative when you need Word (.docx) output or when WeasyPrint is not available in your environment.
+
 ---
 
 ## ⚙️ Configuration
@@ -849,18 +902,18 @@ JinjaReportConfig.load_from_file("./my_config.toml")
 
 ### Available Settings
 
-| Setting | Env Variable | Type | Default | Description |
-|---------|-------------|------|---------|-------------|
-| `templates_dir` | `JINJAREPORT_TEMPLATES_DIR` | Path | `./templates` | Templates directory |
-| `formats_dir` | `JINJAREPORT_FORMATS_DIR` | Path | `./formats` | Formats directory |
-| `output_dir` | `JINJAREPORT_OUTPUT_DIR` | Path | `./output` | Output directory |
-| `assets_dir` | `JINJAREPORT_ASSETS_DIR` | Path | `./assets` | Assets directory |
-| `default_format` | `JINJAREPORT_DEFAULT_FORMAT` | str | `"default"` | Report format |
-| `page_size` | `JINJAREPORT_PAGE_SIZE` | str | `"A4"` | A4, A3, LETTER, LEGAL |
-| `orientation` | `JINJAREPORT_ORIENTATION` | str | `"portrait"` | portrait, landscape |
-| `locale` | `JINJAREPORT_LOCALE` | str | `"es_ES"` | Locale for formatting |
-| `pdf_zoom` | `JINJAREPORT_PDF_ZOOM` | float | `1.0` | PDF zoom level |
-| `pdf_optimize_images` | `JINJAREPORT_PDF_OPTIMIZE_IMAGES` | bool | `true` | Optimize images |
+| Setting                 | Env Variable                        | Type  | Default         | Description           |
+| ----------------------- | ----------------------------------- | ----- | --------------- | --------------------- |
+| `templates_dir`       | `JINJAREPORT_TEMPLATES_DIR`       | Path  | `./templates` | Templates directory   |
+| `formats_dir`         | `JINJAREPORT_FORMATS_DIR`         | Path  | `./formats`   | Formats directory     |
+| `output_dir`          | `JINJAREPORT_OUTPUT_DIR`          | Path  | `./output`    | Output directory      |
+| `assets_dir`          | `JINJAREPORT_ASSETS_DIR`          | Path  | `./assets`    | Assets directory      |
+| `default_format`      | `JINJAREPORT_DEFAULT_FORMAT`      | str   | `"default"`   | Report format         |
+| `page_size`           | `JINJAREPORT_PAGE_SIZE`           | str   | `"A4"`        | A4, A3, LETTER, LEGAL |
+| `orientation`         | `JINJAREPORT_ORIENTATION`         | str   | `"portrait"`  | portrait, landscape   |
+| `locale`              | `JINJAREPORT_LOCALE`              | str   | `"es_ES"`     | Locale for formatting |
+| `pdf_zoom`            | `JINJAREPORT_PDF_ZOOM`            | float | `1.0`         | PDF zoom level        |
+| `pdf_optimize_images` | `JINJAREPORT_PDF_OPTIMIZE_IMAGES` | bool  | `true`        | Optimize images       |
 
 ---
 
@@ -876,28 +929,28 @@ python -m jinjareportpy [command] [options]
 
 ### Global Options
 
-| Option | Short | Description |
-|--------|-------|-------------|
-| `--version` | `-V` | Show version and exit |
-| `--verbose` | `-v` | Increase verbosity (`-v` = INFO, `-vv` = DEBUG) |
-| `--quiet` | `-q` | Suppress non-error output |
-| `--no-color` | | Disable colored output |
+| Option         | Short  | Description                                         |
+| -------------- | ------ | --------------------------------------------------- |
+| `--version`  | `-V` | Show version and exit                               |
+| `--verbose`  | `-v` | Increase verbosity (`-v` = INFO, `-vv` = DEBUG) |
+| `--quiet`    | `-q` | Suppress non-error output                           |
+| `--no-color` |        | Disable colored output                              |
 
 ### Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `config show` | Show current configuration |
-| `config set <key> <value>` | Set a configuration value |
-| `config reset` | Reset to default values |
-| `config init` | Create config file in current directory |
-| `demo` | Generate a demo report |
-| `formats` | List available formats |
-| `templates` | List available templates |
-| `invoice` | Generate an invoice |
-| `quote` | Generate a quote |
-| `receipt` | Generate a receipt |
-| `delivery` | Generate a delivery note |
+| Command                      | Description                             |
+| ---------------------------- | --------------------------------------- |
+| `config show`              | Show current configuration              |
+| `config set <key> <value>` | Set a configuration value               |
+| `config reset`             | Reset to default values                 |
+| `config init`              | Create config file in current directory |
+| `demo`                     | Generate a demo report                  |
+| `formats`                  | List available formats                  |
+| `templates`                | List available templates                |
+| `invoice`                  | Generate an invoice                     |
+| `quote`                    | Generate a quote                        |
+| `receipt`                  | Generate a receipt                      |
+| `delivery`                 | Generate a delivery note                |
 
 ### Configuration Commands
 
@@ -1037,12 +1090,14 @@ PYTHONPATH=. python examples/demo.py
 ```
 
 The demo will:
+
 - ✅ Generate a multi-page report with all section types
 - ✅ Create sample invoice, quote, receipt, and delivery note
 - ✅ Save all outputs to `jinjareportpy/output/` directory
 - ✅ Open the invoice in your default browser
 
 **Expected output:**
+
 ```
 🥷 JinjaReportPy - Complete Demo
 ==================================================
@@ -1069,62 +1124,17 @@ The demo will:
 
 ---
 
-## 📁 Project Structure
-
-```
-jinjareportpy/                    # Project root
-├── jinjareportpy/                # 📦 Main package (portable, self-contained)
-│   ├── __init__.py            # Public API exports
-│   ├── __main__.py            # CLI entry point
-│   ├── cli.py                 # Command line interface
-│   ├── config.py              # Configuration management
-│   ├── base.py                # BaseDocument abstract class
-│   ├── document.py            # Document class + factory functions
-│   ├── report.py              # Report class (multi-page)
-│   ├── page.py                # Page class
-│   ├── sections.py            # Section classes
-│   ├── builder.py             # ReportBuilder API
-│   ├── assets.py              # Asset management
-│   ├── filters.py             # Jinja2 filters
-│   ├── pdf.py                 # PDF export
-│   ├── viewer.py              # Browser/PDF viewer
-│   ├── exceptions.py          # Custom exceptions
-│   ├── templates/             # 📄 Built-in document templates
-│   │   ├── base.html
-│   │   ├── invoice.html
-│   │   ├── quote.html
-│   │   ├── receipt.html
-│   │   └── delivery_note.html
-│   ├── formats/               # 🎨 Predefined formats
-│   │   ├── default/
-│   │   ├── corporate/
-│   │   └── minimal/
-│   └── output/                # 📂 Generated files (auto-created, portable)
-│
-├── examples/                  # 📚 Usage examples
-│   ├── demo.py
-│   └── test_output_config.py
-│
-├── tests/                     # 🧪 Unit tests
-│   ├── test_report.py
-│   └── test_assets.py
-│
-├── .github/                  # GitHub configuration
-│   └── copilot-instructions.md
-│
-├── pyproject.toml            # Project metadata & dependencies
-└── README.md                 # Documentation
-```
-
 ### Directory Organization
 
 **Inside `jinjareportpy/` package** (📦 Portable, self-contained):
+
 - **Source code**: All `.py` modules
 - **templates/**: Built-in HTML templates for documents
 - **formats/**: Predefined styling formats (default, corporate, minimal)
 - **output/**: Default output directory for generated files (auto-created)
 
 **Outside package** (Project development files):
+
 - **examples/**: Demo scripts and usage examples
 - **tests/**: Unit tests
 - **.github/**: Project documentation and CI configuration
@@ -1138,9 +1148,8 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-## 👤 Author
+## 📬 Contact
 
-**jrodriguezgar**
-
-- GitHub: [@jrodriguezgar](https://github.com/jrodriguezgar)
-- Repository: [JinjaReportPy](https://github.com/jrodriguezgar/JinjaReportPy)
+- **Author**: [DatamanEdge](https://github.com/DatamanEdge)
+- **Email**: [jrodriguezga@outlook.com](mailto:jrodriguezga@outlook.com)
+- **LinkedIn**: [Javier Rodríguez](https://es.linkedin.com/in/javier-rodriguez-ga)

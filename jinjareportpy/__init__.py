@@ -81,6 +81,7 @@ from .pdf import check_weasyprint_available
 # Core classes
 from .report import Report
 from .sections import (
+    ChartSection,
     FooterSection,
     HeaderSection,
     KPISection,
@@ -123,6 +124,7 @@ __all__ = [
     "TableSection",
     "TextSection",
     "KPISection",
+    "ChartSection",
     # Builder API
     "ReportBuilder",
     "HeaderConfig",

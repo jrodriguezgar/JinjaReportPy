@@ -459,7 +459,13 @@ class Document(BaseDocument):
         register_default_filters(env)
 
         # Check if template is inline or file reference
-        if "<" in self.template:
+        # Inline: contains HTML tags or Jinja2 blocks; File: looks like a filename
+        is_inline = (
+            "{%" in self.template
+            or "{{" in self.template
+            or "<" in self.template
+        )
+        if is_inline:
             # Inline template
             env = SandboxedEnvironment(
                 loader=DictLoader({"inline": self.template}),
@@ -468,8 +474,12 @@ class Document(BaseDocument):
             register_default_filters(env)
             template = env.get_template("inline")
         else:
-            # File template
+            # File template — reject path traversal
             template_name = self.template
+            if ".." in template_name or template_name.startswith(("/", "\\")):
+                raise TemplateNotFoundError(
+                    f"Invalid template name: {template_name}"
+                )
             if not template_name.endswith(".html"):
                 template_name += ".html"
 

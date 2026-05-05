@@ -14,6 +14,7 @@ from typing import Any
 from .formats import get_default_format
 from .report import Report
 from .sections import (
+    ChartSection,
     KPISection,
     Section,
     TableSection,
@@ -368,6 +369,40 @@ class ReportBuilder:
         """
         config = TextConfig(content=content, title=title)
         self._sections.append((name, config))
+        return self
+
+    def add_chart(
+        self,
+        name: str,
+        figure: Any,
+        title: str = "",
+    ) -> "ReportBuilder":
+        """Add a matplotlib chart to the report as inline SVG.
+
+        Requires matplotlib to be installed.
+
+        Args:
+            name: Unique identifier.
+            figure: A matplotlib Figure object.
+            title: Chart title.
+
+        Returns:
+            Self for method chaining.
+
+        Example:
+            >>> import matplotlib.pyplot as plt
+            >>> fig, ax = plt.subplots()
+            >>> ax.bar(["Q1", "Q2", "Q3"], [100, 150, 130])
+            >>> builder.add_chart("sales", fig, title="Quarterly Sales")
+            >>> plt.close(fig)
+        """
+        section = ChartSection(
+            name=name,
+            figure=figure,
+            title=title,
+            format_name=self.format_name,
+        )
+        self._sections.append((name, section))
         return self
 
     def add_section(self, section: Section) -> "ReportBuilder":

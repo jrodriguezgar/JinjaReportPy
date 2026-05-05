@@ -6,7 +6,10 @@ readme = "README.md"
 requires-python = ">=3.10,<3.14"
 license = {text = "MIT"}
 authors = [
-    {name = "JinjaReportPy Team"}
+    {name = "Javier Rodríguez", email = "jrodriguezga@outlook.com"}
+]
+maintainers = [
+    {name = "Javier Rodríguez", email = "jrodriguezga@outlook.com"}
 ]
 keywords = ["reports", "pdf", "html", "jinja2", "templates", "documents"]
 classifiers = [
@@ -32,12 +35,16 @@ pdf = [
 pandas = [
     "pandas>=2.0.0",
 ]
+charts = [
+    "matplotlib>=3.7.0",
+]
 gui = [
     "tkinterweb>=3.0.0",
 ]
 all = [
     "weasyprint>=60.0",
     "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
     "tkinterweb>=3.0.0",
 ]
 dev = [
@@ -48,11 +55,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jrodriguezgar/JinjaReportPy"
-Repository = "https://github.com/jrodriguezgar/JinjaReportPy"
-Issues = "https://github.com/jrodriguezgar/JinjaReportPy/issues"
-Changelog = "https://github.com/jrodriguezgar/JinjaReportPy/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/jrodriguezgar/JinjaReportPy#readme"
+Homepage = "https://github.com/DatamanEdge/JinjaReportPy"
+Repository = "https://github.com/DatamanEdge/JinjaReportPy"
+Issues = "https://github.com/DatamanEdge/JinjaReportPy/issues"
+Changelog = "https://github.com/DatamanEdge/JinjaReportPy/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/DatamanEdge/JinjaReportPy#readme"
 
 [project.scripts]
 jinjareportpy = "jinjareportpy.__main__:main"

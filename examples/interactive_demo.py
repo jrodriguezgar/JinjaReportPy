@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-📄 JinjaReportPy - Main Entry Point
+📄 JinjaReportPy - Interactive Demo
 
-Quick launcher for the project. Run with:
-    uv run python main.py
+Interactive launcher to explore formats, templates, and generate sample documents.
+
+Run with:
+    uv run python examples/interactive_demo.py
 
 Or directly:
-    python main.py
+    python examples/interactive_demo.py
 """
 
 import sys
 from pathlib import Path
 
 # Add project root to path for direct execution
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from jinjareportpy import (
     ReportBuilder,
@@ -353,7 +355,7 @@ def show_help() -> None:
 ║                         COMMAND LINE USAGE                                ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
-║  uv run python main.py [command]                                          ║
+║  uv run python examples/interactive_demo.py [command]                     ║
 ║                                                                           ║
 ║  EXPLORE:                                                                 ║
 ║  ─────────────────────────────────────────────────────────────────────    ║
@@ -377,7 +379,7 @@ def show_help() -> None:
 ╚═══════════════════════════════════════════════════════════════════════════╝
 
 📁 Output: jinjareportpy/output/
-📖 Examples: examples/demo.py
+📖 Examples: examples/
 """)
 
 

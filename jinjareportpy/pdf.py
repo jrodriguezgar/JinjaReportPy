@@ -55,6 +55,17 @@ def html_to_pdf(
         )
 
     try:
+        # Restrict base_url to safe schemes to prevent SSRF
+        if base_url and base_url.startswith("//"):
+            raise PDFExportError(
+                f"Unsafe base_url (UNC paths not allowed): {base_url}"
+            )
+        if base_url and not base_url.startswith(("file://", "file:\\", "data:", ".", "/")):
+            raise PDFExportError(
+                f"Unsafe base_url scheme: {base_url}. "
+                "Only file:// and data: schemes are allowed."
+            )
+
         # Create HTML document
         html_doc = HTML(string=html_content, base_url=base_url)
 

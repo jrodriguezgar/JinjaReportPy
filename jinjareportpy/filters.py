@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Any
 
 from jinja2 import Environment
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 from .config import get_locale
 
@@ -253,7 +253,8 @@ def nl2br(value: str | None) -> str:
     """
     if value is None:
         return ""
-    return Markup(str(value).replace("\n", "<br>\n"))
+    escaped = escape(str(value))
+    return Markup(escaped.replace("\n", Markup("<br>\n")))
 
 
 def default_if_none(value: Any, default: Any = "") -> Any:

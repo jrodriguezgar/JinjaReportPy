@@ -1,0 +1,222 @@
+// =============================================================================
+// 📄 JinjaReportPy - Jenkins Pipeline Example
+//
+// Declarative pipeline for CI/CD with JinjaReportPy.
+// Stages: lint, test, build documents, archive artifacts.
+//
+// Requirements:
+//   - Python 3.10+ installed on agent (or use a Docker agent)
+//   - uv package manager (https://docs.astral.sh/uv/)
+//
+// Usage:
+//   1. Copy this file to the root of your repo as "Jenkinsfile"
+//   2. Create a Pipeline job in Jenkins pointing to your repo
+//   3. Adjust parameters/stages to your needs
+// =============================================================================
+
+pipeline {
+    agent any
+
+    // -------------------------------------------------------------------------
+    // Parameters - configurable from Jenkins UI
+    // -------------------------------------------------------------------------
+    parameters {
+        choice(
+            name: 'REPORT_FORMAT',
+            choices: ['corporate', 'default', 'minimal'],
+            description: 'Report styling format'
+        )
+        choice(
+            name: 'PAGE_SIZE',
+            choices: ['A4', 'A3', 'LETTER', 'LEGAL'],
+            description: 'Page size for PDF export'
+        )
+        choice(
+            name: 'ORIENTATION',
+            choices: ['portrait', 'landscape'],
+            description: 'Page orientation'
+        )
+        string(
+            name: 'LOCALE',
+            defaultValue: 'en_US',
+            description: 'Locale for number/date formatting (e.g. en_US, es_ES)'
+        )
+        booleanParam(
+            name: 'GENERATE_PDF',
+            defaultValue: true,
+            description: 'Generate PDF output (requires weasyprint)'
+        )
+        booleanParam(
+            name: 'RUN_LINT',
+            defaultValue: true,
+            description: 'Run ruff linter'
+        )
+    }
+
+    // -------------------------------------------------------------------------
+    // Environment - JinjaReportPy configuration via env vars
+    // -------------------------------------------------------------------------
+    environment {
+        PYTHONPATH                  = '.'
+        JINJAREPORT_OUTPUT_DIR     = "${WORKSPACE}/reports"
+        JINJAREPORT_DEFAULT_FORMAT = "${params.REPORT_FORMAT}"
+        JINJAREPORT_PAGE_SIZE      = "${params.PAGE_SIZE}"
+        JINJAREPORT_ORIENTATION    = "${params.ORIENTATION}"
+        JINJAREPORT_LOCALE         = "${params.LOCALE}"
+    }
+
+    options {
+        timestamps()
+        timeout(time: 15, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        // ---------------------------------------------------------------------
+        // Stage 1: Setup
+        // ---------------------------------------------------------------------
+        stage('Setup') {
+            steps {
+                echo "🔧 Setting up Python environment..."
+                sh '''
+                    python3 --version
+                    pip install --upgrade uv 2>/dev/null || pip3 install --upgrade uv
+                    uv sync --quiet
+                '''
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 2: Lint (optional)
+        // ---------------------------------------------------------------------
+        stage('Lint') {
+            when { expression { params.RUN_LINT } }
+            steps {
+                echo "🔍 Running linter..."
+                sh 'uv run ruff check jinjareportpy/ --output-format=github'
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 3: Tests
+        // ---------------------------------------------------------------------
+        stage('Test') {
+            steps {
+                echo "🧪 Running test suite..."
+                sh '''
+                    uv run pytest tests/ \
+                        -v \
+                        --tb=short \
+                        --no-color \
+                        --junitxml=reports/junit-results.xml \
+                        --cov=jinjareportpy \
+                        --cov-report=xml:reports/coverage.xml \
+                        --cov-report=html:reports/coverage-html
+                '''
+            }
+            post {
+                always {
+                    junit 'reports/junit-results.xml'
+                    publishHTML(target: [
+                        reportDir: 'reports/coverage-html',
+                        reportFiles: 'index.html',
+                        reportName: 'Coverage Report'
+                    ])
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 4: Generate Documents
+        // ---------------------------------------------------------------------
+        stage('Generate Documents') {
+            steps {
+                echo "📄 Generating documents..."
+                sh 'mkdir -p reports'
+
+                // Demo report
+                sh """
+                    uv run python -m jinjareportpy --no-color -q \
+                        demo \
+                        --format ${params.REPORT_FORMAT} \
+                        --output demo_report \
+                        ${params.GENERATE_PDF ? '--pdf' : ''}
+                """
+
+                // Invoice
+                sh """
+                    uv run python -m jinjareportpy --no-color -q \
+                        invoice -n INV-\$(date +%Y%m%d)-001 \
+                        --company "Acme Corp" \
+                        --client "Client Ltd." \
+                        ${params.GENERATE_PDF ? '--pdf' : ''}
+                """
+
+                // Quote
+                sh """
+                    uv run python -m jinjareportpy --no-color -q \
+                        quote -n QT-\$(date +%Y%m%d)-001 \
+                        --validity 30 \
+                        ${params.GENERATE_PDF ? '--pdf' : ''}
+                """
+
+                // Receipt
+                sh """
+                    uv run python -m jinjareportpy --no-color -q \
+                        receipt -n REC-\$(date +%Y%m%d)-001 \
+                        --amount 5000.00 \
+                        --concept "Invoice payment" \
+                        ${params.GENERATE_PDF ? '--pdf' : ''}
+                """
+
+                // Delivery note
+                sh """
+                    uv run python -m jinjareportpy --no-color -q \
+                        delivery -n DN-\$(date +%Y%m%d)-001 \
+                        ${params.GENERATE_PDF ? '--pdf' : ''}
+                """
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // Stage 5: Verify & List Outputs
+        // ---------------------------------------------------------------------
+        stage('Verify') {
+            steps {
+                echo "✅ Verifying generated files..."
+                sh '''
+                    echo "=== Generated Reports ==="
+                    ls -lh reports/ 2>/dev/null || true
+                    echo ""
+                    echo "=== Output Directory ==="
+                    ls -lh jinjareportpy/output/ 2>/dev/null || true
+                '''
+
+                // Show configuration used
+                sh 'uv run python -m jinjareportpy --no-color config show'
+
+                // List formats
+                sh 'uv run python -m jinjareportpy --no-color formats'
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Post-build actions
+    // -------------------------------------------------------------------------
+    post {
+        success {
+            echo "✅ Pipeline completed successfully!"
+            archiveArtifacts artifacts: 'reports/**,jinjareportpy/output/**',
+                             fingerprint: true,
+                             allowEmptyArchive: true
+        }
+        failure {
+            echo "❌ Pipeline failed!"
+        }
+        cleanup {
+            cleanWs()
+        }
+    }
+}

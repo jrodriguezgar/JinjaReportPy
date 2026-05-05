@@ -198,6 +198,9 @@ cython_debug/
 .vscode/
 project_structure.txt
 
+# Python version (library should not pin)
+.python-version
+
 # Infrastructure secrets
 *.tfvars
 *.tfstate
@@ -234,21 +237,6 @@ Desktop.ini
 
 
 #my files ->
-# Excluir directorios de proyecto, tests y documentación
-# GitHub Copilot / internal config (not published)
-.github/agents/
-.github/hooks/
-.github/instructions/
-.github/prompts/
-.github/skills/
-.github/copilot-instructions.md
-# Keep published: .github/workflows/, .github/ISSUE_TEMPLATE/, .github/PULL_REQUEST_TEMPLATE.md
-.vscode/
-project_structure.txt
-pyproject.toml
-tests/
-docs/
-examples/
 notebooks/
 ToDo/
 

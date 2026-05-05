@@ -1,0 +1,28 @@
+/* ===========================================
+   Chart - Formato Default
+   =========================================== */
+
+.section-chart {
+    margin-bottom: 25px;
+}
+
+.chart-title {
+    font-size: 12pt;
+    font-weight: 600;
+    color: var(--text-color, #1e293b);
+    margin-bottom: 15px;
+}
+
+.chart-container {
+    text-align: center;
+    margin: 1rem 0;
+    padding: 15px;
+    background: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+}
+
+.chart-container svg {
+    max-width: 100%;
+    height: auto;
+}

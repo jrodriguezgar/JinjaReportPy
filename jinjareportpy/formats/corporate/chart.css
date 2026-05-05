@@ -1,0 +1,30 @@
+/* ===========================================
+   Chart - Formato Corporate
+   =========================================== */
+
+.section-chart {
+    margin-bottom: 25px;
+}
+
+.chart-title {
+    font-size: 12pt;
+    font-weight: 600;
+    color: var(--text-color, #1a1a2e);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary-color, #16213e);
+    padding-bottom: 8px;
+}
+
+.chart-container {
+    text-align: center;
+    margin: 1rem 0;
+    padding: 20px;
+    background: #fafbfc;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 4px;
+}
+
+.chart-container svg {
+    max-width: 100%;
+    height: auto;
+}

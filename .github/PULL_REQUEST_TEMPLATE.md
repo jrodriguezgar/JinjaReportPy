@@ -1,36 +1,26 @@
 ## Description
 
-<!-- What does this PR do? Provide a brief summary of the changes. -->
+<!-- Brief summary of the changes. -->
 
-## Related Issue
-
-<!-- Link to the related issue. Use "Closes #123" to auto-close the issue when merged. -->
-
-Closes #
-
-## Type of Change
+## Type of change
 
 - [ ] Bug fix (non-breaking change that fixes an issue)
-- [ ] New feature (non-breaking change that adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to change)
+- [ ] New function(s) (non-breaking change that adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] Documentation update
-- [ ] Refactoring (no functional changes)
-- [ ] CI/CD or build configuration
+
+## Module(s) affected
+
+<!-- e.g. fxNumeric, fxString -->
 
 ## Checklist
 
-- [ ] My code follows the project's code style
-- [ ] I have added tests that prove my fix is effective or my feature works
-- [ ] Existing tests pass locally with my changes (`uv run pytest`)
-- [ ] Linter passes (`ruff check .`)
-- [ ] I have updated the documentation accordingly
-- [ ] I have updated `CHANGELOG.md` with my changes
-- [ ] My changes generate no new warnings
-
-## Screenshots (if applicable)
-
-<!-- Add screenshots to help explain your changes, if applicable. -->
-
-## Additional Notes
-
-<!-- Any additional information that reviewers should know. -->
+- [ ] Function has Google-style docstring (`Args`, `Returns`, `Raises`, `Example`, `Complexity`)
+- [ ] Input validation uses `agentfx/_validators.py` helpers
+- [ ] No external runtime dependencies added to core
+- [ ] No `eval()`, `exec()`, or `subprocess` in function code
+- [ ] No name collision with existing functions in the same `fx*` package
+- [ ] Tests added/updated under `tests/`
+- [ ] `CHANGELOG.md` updated under `## [Unreleased]`
+- [ ] `llms.txt` updated if public API changed
+- [ ] Module `README.md` updated if public API changed

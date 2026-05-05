@@ -39,6 +39,8 @@ class FormatTemplates(TypedDict):
     kpi_css: str
     text_html: str
     text_css: str
+    chart_html: str
+    chart_css: str
 
 
 # Formato activo por defecto
@@ -127,6 +129,8 @@ def get_format_templates(format_name: str | None = None) -> FormatTemplates:
         kpi_css=read_file("kpi.css"),
         text_html=read_file("text.html"),
         text_css=read_file("text.css"),
+        chart_html=read_file("chart.html"),
+        chart_css=read_file("chart.css"),
     )
 
 
@@ -164,3 +168,9 @@ def get_text_template(format_name: str | None = None) -> tuple[str, str]:
     """Obtiene template HTML y CSS para Text."""
     templates = get_format_templates(format_name)
     return templates["text_html"], templates["text_css"]
+
+
+def get_chart_template(format_name: str | None = None) -> tuple[str, str]:
+    """Obtiene template HTML y CSS para Chart."""
+    templates = get_format_templates(format_name)
+    return templates["chart_html"], templates["chart_css"]

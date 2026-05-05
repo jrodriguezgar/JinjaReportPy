@@ -6,12 +6,14 @@ and data. If not provided, uses the active format's defaults.
 """
 
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any
 
 from jinja2.sandbox import SandboxedEnvironment
 
 from .filters import register_default_filters
 from .formats import (
+    get_chart_template,
     get_footer_template,
     get_header_template,
     get_kpi_template,
@@ -19,6 +21,14 @@ from .formats import (
     get_table_template,
     get_text_template,
 )
+
+
+@lru_cache(maxsize=1)
+def _get_jinja_env() -> SandboxedEnvironment:
+    """Return a shared SandboxedEnvironment with filters registered."""
+    env = SandboxedEnvironment(autoescape=True)
+    register_default_filters(env)
+    return env
 
 
 @dataclass
@@ -81,8 +91,7 @@ class Section:
         if not template_str:
             return ""
 
-        env = SandboxedEnvironment(autoescape=False)
-        register_default_filters(env)
+        env = _get_jinja_env()
         jinja_template = env.from_string(template_str)
         content = jinja_template.render(**self.data)
 
@@ -396,3 +405,82 @@ class KPISection(Section):
     def _get_default_template_css(self) -> tuple[str, str]:
         """Get KPI template and CSS from the format."""
         return get_kpi_template(self.format_name)
+
+
+class ChartSection(Section):
+    """Section that renders a matplotlib Figure as inline SVG.
+
+    Converts a matplotlib Figure to SVG and embeds it directly in the report.
+    Works with both HTML and PDF (WeasyPrint) output.
+
+    Requires matplotlib (optional dependency).
+    """
+
+    def __init__(
+        self,
+        name: str,
+        figure: Any,
+        title: str = "",
+        data: dict[str, Any] | None = None,
+        template: str | None = None,
+        css: str | None = None,
+        format_name: str | None = None,
+    ):
+        """Initialize a chart section from a matplotlib Figure.
+
+        Args:
+            name: Unique identifier for the section.
+            figure: A matplotlib Figure object.
+            title: Optional chart title (rendered above the chart).
+            data: Additional data for the template.
+            template: Custom HTML template (None = use format).
+            css: Custom CSS (None = use format).
+            format_name: Specific format name (None = active format).
+
+        Raises:
+            ImportError: If matplotlib is not installed.
+            TypeError: If figure is not a matplotlib Figure.
+
+        Example:
+            >>> import matplotlib.pyplot as plt
+            >>> fig, ax = plt.subplots()
+            >>> ax.bar(["Q1", "Q2", "Q3"], [100, 150, 130])
+            >>> chart = ChartSection(name="sales_chart", figure=fig, title="Sales")
+            >>> plt.close(fig)
+        """
+        try:
+            from matplotlib.figure import Figure as MplFigure
+        except ImportError as exc:
+            raise ImportError(
+                "matplotlib is required for ChartSection. "
+                "Install it with: pip install jinjareportpy[charts]"
+            ) from exc
+
+        if not isinstance(figure, MplFigure):
+            raise TypeError(
+                f"Expected a matplotlib Figure, got {type(figure).__name__}"
+            )
+
+        import io
+
+        buf = io.BytesIO()
+        figure.savefig(buf, format="svg", bbox_inches="tight")
+        buf.seek(0)
+        svg_content = buf.getvalue().decode("utf-8")
+
+        default_data = {"title": title, "svg_chart": svg_content}
+        if data:
+            default_data.update(data)
+
+        super().__init__(
+            name=name,
+            template=template,
+            data=default_data,
+            css=css,
+            css_class="chart",
+            format_name=format_name,
+        )
+
+    def _get_default_template_css(self) -> tuple[str, str]:
+        """Get chart template and CSS from the format."""
+        return get_chart_template(self.format_name)

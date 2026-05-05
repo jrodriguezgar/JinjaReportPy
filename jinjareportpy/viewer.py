@@ -188,6 +188,9 @@ def open_in_browser(
 
     # Handle custom browser command (legacy behavior)
     if browser_command:
+        if not shutil.which(browser_command):
+            raise ViewerError(f"Browser command not found: {browser_command}")
+
         if html_content is not None:
             _TEMP_DIR.mkdir(exist_ok=True)
             html_path = _TEMP_DIR / f"report_{uuid.uuid4().hex[:8]}.html"
@@ -267,6 +270,9 @@ def open_pdf_viewer(
 
     try:
         if viewer_command:
+            # Validate command exists
+            if not shutil.which(viewer_command):
+                raise ViewerError(f"PDF viewer command not found: {viewer_command}")
             # Use custom viewer command
             subprocess.Popen([viewer_command, str(pdf_path)])
         else:

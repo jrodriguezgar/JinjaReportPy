@@ -101,6 +101,14 @@ class AssetManager:
         asset_path = self.find_asset(asset_name)
         mime_type = self._get_mime_type(asset_path)
 
+        # Prevent OOM from excessively large files (default 50 MB)
+        max_size = 50 * 1024 * 1024
+        file_size = asset_path.stat().st_size
+        if file_size > max_size:
+            raise AssetNotFoundError(
+                f"Asset too large ({file_size / 1024 / 1024:.1f} MB): {asset_name}"
+            )
+
         with open(asset_path, "rb") as f:
             encoded = base64.b64encode(f.read()).decode("utf-8")
 
